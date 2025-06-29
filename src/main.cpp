@@ -21,16 +21,12 @@ github:  https://github.com/kamikaze2112/Valmar1665
 
 NonBlockingTimer timer;
 
-
 void debugPrint() {
 
     DBG_PRINTLN(incomingData.calibrationMode);
     DBG_PRINTLN(incomingData.calibrationWeight);
     DBG_PRINTLN(incomingData.seedingRate);
 }
-
-unsigned long lastUpdateTime = 0;
-const unsigned long updateInterval = 100; // Update every 100 ms
 
 const unsigned long DEBOUNCE_DELAY = 50;  // ms
 
