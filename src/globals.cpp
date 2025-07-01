@@ -6,6 +6,16 @@
 #include "globals.h"
 #include "encoder.h"
 
+// encoder pinout
+// pin 1 power RED -> yellow
+// pin 2 bottom spur b GREEN
+// pin 3 ground WHITE -> black
+// pin 4 top spur a BLACK
+
+// Global Variables
+
+bool calibrationMode = false;
+
 // OLED Setup
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64

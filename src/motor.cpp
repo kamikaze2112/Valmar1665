@@ -6,7 +6,7 @@
 
 bool motorActive = false;
 unsigned long lastUpdate = 0;
-
+const unsigned long updateInterval = 10;  // 100 ms
 float actualRate = 0.0;
 
 void updateCounter() {
@@ -56,7 +56,7 @@ void handleCalButton() {
           float revs = Encoder::revs;
 
           DBG_PRINT("Calibration done, revs = ");
-          DBG_PRINTLN(revs);  // Print with 2 decimal places
+          DBG_PRINTLN(counter);  // Print with 2 decimal places
 
           // You can now store/use `revs` as needed
         }
@@ -64,7 +64,7 @@ void handleCalButton() {
     }
   } else {
       if (digitalRead(CAL_BTN) == LOW) {
-        setMotorPWM(255);
+        setMotorPWM(100);
         motorActive = true;
       } else {
         setMotorPWM(0);
@@ -75,5 +75,8 @@ void handleCalButton() {
 }
 
 void setMotorPWM(int pwm){
+
+  digitalWrite(MOTOR_DIR, LOW);
+  analogWrite(MOTOR_PWM, pwm);
 
 }

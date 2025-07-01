@@ -15,19 +15,23 @@ IncomingData incomingData = {};
 
 // Track last send time
 unsigned long lastSendTime = 0;
-const unsigned long sendInterval = 1000;  // 1 per second
+const unsigned long sendInterval = 200;  // 1 per second
 
 // === Incoming receive callback ===
 void onDataRecv(const uint8_t *mac, const uint8_t *incoming, int len) {
   if (len == sizeof(IncomingData)) {
     memcpy(&incomingData, incoming, sizeof(IncomingData));
+    
+    calibrationMode = incomingData.calibrationMode;
+  
   }
+  
 }
 
 // === Send status callback (optional debugging) ===
 void onDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-  DBG_PRINT("ESP-NOW send status: ");
-  DBG_PRINTLN(status == ESP_NOW_SEND_SUCCESS ? "Success" : "Fail");
+  //DBG_PRINT("ESP-NOW send status: ");
+  //DBG_PRINTLN(status == ESP_NOW_SEND_SUCCESS ? "Success" : "Fail");
 }
 
 // === Setup ESP-NOW ===

@@ -57,7 +57,7 @@ namespace {
 
     totalPulses += delta;
     lastPCNTCount = currentCount;
-
+   
     return totalPulses;
   }
 }

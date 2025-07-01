@@ -35,7 +35,7 @@ void setupGPS()
     DBG_PRINTLN("GPS refresh rate set to 5hz.");
     DBG_PRINTLN("Setting GPS to return only GPRMC + GGA...");
 
-    gps.println("$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28");  // Output only RMC and GGA
+    gps.println("$PMTK314,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29"); // <-- RMC, GGA, and VTG "$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28");  // Output only RMC and GGA
     delay(100);
 
     DBG_PRINTLN("Init GPS complete.");
@@ -108,6 +108,14 @@ static void parseGPGGA(const char *nmea)
   GPS.numSats = atoi(satStr);
 }
 
+static void parseGPVTG(const char *nmea) {
+  if (!validateChecksum(nmea)) return;
+
+  //const char *speedKnotsStr = getField(nmea, 5);
+  //float speedKnots = atof(speedKnotsStr);
+  //GPS.speedMPH = speedKnots * 1.15078f;  // Optional
+}
+
 void updateGPS() 
 {
   static char buffer[100];
@@ -126,6 +134,9 @@ void updateGPS()
         parseGPRMC(buffer);
       else if (strncmp(buffer, "$GPGGA", 6) == 0)
         parseGPGGA(buffer);
+      else if (strncmp(buffer, "$GPVTG", 6) == 0)
+        parseGPVTG(buffer);
+
       pos = 0;
     } else if (pos < sizeof(buffer) - 1) {
       buffer[pos++] = c;

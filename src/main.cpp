@@ -23,9 +23,20 @@ NonBlockingTimer timer;
 
 void debugPrint() {
 
+    DBG_PRINT("Incoming calibrationMode: ");
     DBG_PRINTLN(incomingData.calibrationMode);
+    DBG_PRINT("Incoming calibrationWeight: ");
     DBG_PRINTLN(incomingData.calibrationWeight);
+    DBG_PRINT("Incoming seedingRate: ");
     DBG_PRINTLN(incomingData.seedingRate);
+
+    DBG_PRINT("GPS.speedMPH: ");
+    DBG_PRINTLN(GPS.speedMPH);
+    DBG_PRINT("shaftRPM");
+    DBG_PRINTLN(shaftRPM);
+    
+    DBG_PRINT("calibrationMode: ");
+    DBG_PRINTLN(calibrationMode ? "true" : "false");
 }
 
 const unsigned long DEBOUNCE_DELAY = 50;  // ms
@@ -34,8 +45,6 @@ int buttonState = 0;  // toggled state (0 or 1)
 bool lastButtonReading = HIGH;
 bool lastDebouncedState = HIGH;
 unsigned long lastDebounceTime = 0;
-
-bool calibrationMode = 0; //sets calibration mode to false on startup by default
 
 void handleBootButton() {
   bool reading = digitalRead(BOOT_BTN);
@@ -73,7 +82,7 @@ void setup()
   DBG_PRINTLN("");
 
   timer.set(debugPrint, 1000);
-  
+    
   initPins();
   
   initDisplay();
@@ -92,6 +101,7 @@ void loop()
 {
 
   timer.update();
+
   Encoder::update();
   updateGPS();
 
@@ -113,19 +123,15 @@ if (readWorkSwitch()) {
 
   handleBootButton();
 
-  if (buttonState) {
+/*   if (buttonState) {
     calibrationMode = 1;
   } else {
     calibrationMode = 0;
   }
+ */
 
   handleCalButton();
 
   sendCommsUpdate();
-
-  if (incomingData.calibrationMode) {
-    calibrationMode = true;
-  } else {
-    calibrationMode = false;
-  }
+  
 }
