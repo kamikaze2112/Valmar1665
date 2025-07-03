@@ -56,6 +56,8 @@ extern int errorCode;
 void initPins();
 
 extern bool calibrationMode;
+extern bool motorTestSwitch;
+extern int motorTestPWM;
 
 // Returns 1 if the switch is active (pressed), 0 if not
 int readWorkSwitch();

@@ -8,70 +8,64 @@ bool motorActive = false;
 unsigned long lastUpdate = 0;
 const unsigned long updateInterval = 10;  // 100 ms
 float actualRate = 0.0;
+bool hasPrinted = false;
 
-void updateCounter() {
-  unsigned long now = millis();
-  if (now - lastUpdate >= updateInterval) {
-    lastUpdate = now;
-    counter += 0.01;
+bool lastCalBtnState = false;
+unsigned long lastCalDebounceTime = 0;
+const unsigned long debounceDelay = 50;
+
+// Function to read the debounced state of the calibration button
+bool isCalButtonPressed() {
+  static bool debouncedState = false;
+  static bool lastReading = HIGH;  // default not pressed
+
+  bool reading = digitalRead(CAL_BTN);
+
+  if (reading != lastReading) {
+    lastCalDebounceTime = millis();
   }
+
+  if ((millis() - lastCalDebounceTime) > debounceDelay) {
+    if (reading != debouncedState) {
+      debouncedState = reading;
+    }
+  }
+
+  lastReading = reading;
+  return (debouncedState == LOW);  // Active LOW = pressed
 }
 
-void handleCalButton() {
-
-  if (calibrationMode){
-    static bool wasHeld = false;
-    static bool startedCal = false;
-
-    if (digitalRead(CAL_BTN) == LOW) {
-      // Button is held
-      if (!wasHeld) {
-        wasHeld = true;
-        startedCal = true;
-        
-        // Start motor at 100%
-        setMotorPWM(255);  // Assuming 255 is full speed
-        motorActive = true;
-        DBG_PRINTLN("Calibration started");
-      }
-
-      // Keep updating encoder during hold
-      updateCounter();
-      Encoder::update();
-
-    } else {
-      // Button is not held
-      if (wasHeld) {
-        wasHeld = false;
-
-        if (startedCal) {
-          startedCal = false;
-
-          // Stop motor
-          setMotorPWM(0);
-          motorActive = false;
-
-          // Read total revolutions
-          Encoder::update();  // Final update just in case
-          float revs = Encoder::revs;
-
-          DBG_PRINT("Calibration done, revs = ");
-          DBG_PRINTLN(counter);  // Print with 2 decimal places
-
-          // You can now store/use `revs` as needed
-        }
-      }
-    }
-  } else {
-      if (digitalRead(CAL_BTN) == LOW) {
-        setMotorPWM(100);
-        motorActive = true;
-      } else {
-        setMotorPWM(0);
-        motorActive = false;
-      }
+void updateMotorControl() {
+  // Highest priority: Motor test mode from screen
+  if (motorTestSwitch) {
+    setMotorPWM(motorTestPWM);
+    return;
   }
 
+  // Next priority: Calibration button
+  if (isCalButtonPressed()) {
+    setMotorPWM(255);  // Run at 100%
+    // Keep updating encoder during hold
+    //Encoder::update();
+    return;
+  }
+
+  // Work switch active
+  if (readWorkSwitch()) {
+    // Placeholder: run motor at 100% for now
+    setMotorPWM(255);
+
+    // Later you’ll replace this with PID output:
+    // float targetRPM = calculateTargetRPM(...);
+    // float actualRPM = getEncoderRPM();
+    // float output = pid.compute(targetRPM, actualRPM);
+    // setMotorPWM(output);
+    
+    return;
+  }
+
+  // None active — stop the motor
+  setMotorPWM(0);
 }
 
 void setMotorPWM(int pwm){

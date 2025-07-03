@@ -15,6 +15,8 @@
 // Global Variables
 
 bool calibrationMode = false;
+bool motorTestSwitch = false;
+int motorTestPWM = 10;
 
 // OLED Setup
 #define SCREEN_WIDTH 128
@@ -210,7 +212,7 @@ void updateOLEDcal() {
     // === Centered revolutions (size 2) ===
     char revsStr[10];
     
-    snprintf(revsStr, sizeof(revsStr), "%.2f", counter);
+    snprintf(revsStr, sizeof(revsStr), "%.2f", Encoder::revs);
 
     display.setTextSize(2);
     display.getTextBounds(revsStr, 0, 0, &x1, &y1, &w, &h);

@@ -83,6 +83,31 @@ namespace Encoder {
   }
 
   void update() {
+
+  DBG_PRINTLN("Encoder::update called");
+
+  readAndTrackTotalPulses();  // <-- always track pulse deltas
+
+  unsigned long now = millis();
+  if ((now - lastRPMUpdate) < RPM_SAMPLE_INTERVAL_MS) return;
+
+  static long lastPulseSnapshot = 0;
+  long currentTotalPulses = totalPulses;  // already updated above
+  long deltaPulses = currentTotalPulses - lastPulseSnapshot;
+
+  revs = float(currentTotalPulses) / float(PULSES_PER_REV);
+  float deltaRevs = float(deltaPulses) / float(PULSES_PER_REV);
+  float elapsedMinutes = float(now - lastRPMUpdate) / 60000.0;
+
+  rpm = (elapsedMinutes > 0) ? (deltaRevs / elapsedMinutes) : 0.0;
+  isMoving = (millis() - lastPulseTime) < MOVING_TIMEOUT_MS;
+
+  lastPulseSnapshot = currentTotalPulses;
+  lastRPMUpdate = now;
+}
+
+  /* void update() {
+
     unsigned long now = millis();
     if ((now - lastRPMUpdate) < RPM_SAMPLE_INTERVAL_MS) return;
 
@@ -99,5 +124,5 @@ namespace Encoder {
 
     lastPulseSnapshot = currentTotalPulses;
     lastRPMUpdate = now;
-  }
+  } */
 }

@@ -6,6 +6,7 @@
 #include "comms.h"
 #include "globals.h"  // Assuming all outgoing variables are defined here
 
+bool resetRevs = true;
 
 // Receiver MAC address: 98:3D:AE:E9:26:58
 uint8_t peerAddress[] = { 0x98, 0x3D, 0xAE, 0xE9, 0x26, 0x58 };
@@ -23,11 +24,20 @@ void onDataRecv(const uint8_t *mac, const uint8_t *incoming, int len) {
     memcpy(&incomingData, incoming, sizeof(IncomingData));
     
     calibrationMode = incomingData.calibrationMode;
+      
+    if (!calibrationMode && resetRevs) {
+      Encoder::resetRevolutions();
+      resetRevs = false;
+    } else if (calibrationMode && !resetRevs) {
+      Encoder::resetRevolutions();
+      resetRevs = true;
+    }
+
+    motorTestSwitch = incomingData.motorTestSwitch;
+    motorTestPWM = incomingData.motorTestPWM;
   
   }
-  
 }
-
 // === Send status callback (optional debugging) ===
 void onDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
   //DBG_PRINT("ESP-NOW send status: ");
@@ -75,7 +85,7 @@ void sendCommsUpdate() {
   out.calibrationRevs = Encoder::revs;
   out.workSwitch = readWorkSwitch();
   out.motorActive = motorActive;
-  out.shaftRPM = shaftRPM;
+  out.shaftRPM = Encoder::rpm;
   out.errorCode = errorCode;  // Assuming you have this defined
   out.actualRate = actualRate;
   esp_err_t result = esp_now_send(peerAddress, (uint8_t *)&out, sizeof(out));

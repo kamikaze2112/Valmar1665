@@ -23,7 +23,7 @@ NonBlockingTimer timer;
 
 void debugPrint() {
 
-    DBG_PRINT("Incoming calibrationMode: ");
+/*     DBG_PRINT("Incoming calibrationMode: ");
     DBG_PRINTLN(incomingData.calibrationMode);
     DBG_PRINT("Incoming calibrationWeight: ");
     DBG_PRINTLN(incomingData.calibrationWeight);
@@ -36,7 +36,14 @@ void debugPrint() {
     DBG_PRINTLN(shaftRPM);
     
     DBG_PRINT("calibrationMode: ");
-    DBG_PRINTLN(calibrationMode ? "true" : "false");
+    DBG_PRINTLN(calibrationMode ? "true" : "false"); */
+
+    DBG_PRINT("Incoming Motor Switch: ");
+    DBG_PRINTLN(incomingData.motorTestSwitch);
+
+    DBG_PRINT("Incoming Motor PWM: ");
+    DBG_PRINTLN(incomingData.motorTestPWM);
+
 }
 
 const unsigned long DEBOUNCE_DELAY = 50;  // ms
@@ -46,7 +53,7 @@ bool lastButtonReading = HIGH;
 bool lastDebouncedState = HIGH;
 unsigned long lastDebounceTime = 0;
 
-void handleBootButton() {
+/* void handleBootButton() {
   bool reading = digitalRead(BOOT_BTN);
 
   if (reading != lastDebouncedState) {
@@ -68,7 +75,7 @@ void handleBootButton() {
   }
 
   lastDebouncedState = reading;
-}
+} */
 
 void setup() 
 {
@@ -121,16 +128,11 @@ if (readWorkSwitch()) {
     digitalWrite(CAL_LED, LOW);
   }
 
-  handleBootButton();
+  //handleBootButton();
 
-/*   if (buttonState) {
-    calibrationMode = 1;
-  } else {
-    calibrationMode = 0;
-  }
- */
+  //handleCalButton();  //motor.cpp
 
-  handleCalButton();
+  updateMotorControl();
 
   sendCommsUpdate();
   
