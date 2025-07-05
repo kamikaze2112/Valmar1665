@@ -53,7 +53,7 @@ void updateMotorControl() {
   // Work switch active
   if (readWorkSwitch()) {
     // Placeholder: run motor at 100% for now
-    setMotorPWM(255);
+    setMotorPWM(targetRPM);
 
     // Later you’ll replace this with PID output:
     // float targetRPM = calculateTargetRPM(...);

@@ -25,8 +25,7 @@ void debugPrint() {
 
 /*     DBG_PRINT("Incoming calibrationMode: ");
     DBG_PRINTLN(incomingData.calibrationMode);
-    DBG_PRINT("Incoming calibrationWeight: ");
-    DBG_PRINTLN(incomingData.calibrationWeight);
+
     DBG_PRINT("Incoming seedingRate: ");
     DBG_PRINTLN(incomingData.seedingRate);
 
@@ -36,13 +35,32 @@ void debugPrint() {
     DBG_PRINTLN(shaftRPM);
     
     DBG_PRINT("calibrationMode: ");
-    DBG_PRINTLN(calibrationMode ? "true" : "false"); */
+    DBG_PRINTLN(calibrationMode ? "true" : "false");
 
     DBG_PRINT("Incoming Motor Switch: ");
     DBG_PRINTLN(incomingData.motorTestSwitch);
 
     DBG_PRINT("Incoming Motor PWM: ");
     DBG_PRINTLN(incomingData.motorTestPWM);
+  
+    DBG_PRINT("Incoming speedTestSwitch: ");
+    DBG_PRINTLN(incomingData.speedTestSwitch);
+
+    DBG_PRINT("Incoming speedTestSpeed: ");
+    DBG_PRINTLN(incomingData.speedTestSpeed);
+  
+*/  
+    DBG_PRINT("Incoming seedingRate: ");
+    DBG_PRINTLN(incomingData.seedingRate);
+
+    DBG_PRINT("Incoming calibrationWeight: ");
+    DBG_PRINTLN(incomingData.calibrationWeight);
+
+    DBG_PRINT("Calibration revs: ");
+    DBG_PRINTLN(Encoder::revs);
+
+    DBG_PRINT("seedPerRev: ");
+    DBG_PRINTLN(seedPerRev);
 
 }
 
@@ -52,30 +70,6 @@ int buttonState = 0;  // toggled state (0 or 1)
 bool lastButtonReading = HIGH;
 bool lastDebouncedState = HIGH;
 unsigned long lastDebounceTime = 0;
-
-/* void handleBootButton() {
-  bool reading = digitalRead(BOOT_BTN);
-
-  if (reading != lastDebouncedState) {
-    lastDebounceTime = millis();  // reset debounce timer
-  }
-
-  if ((millis() - lastDebounceTime) > DEBOUNCE_DELAY) {
-    if (reading != lastButtonReading) {
-      lastButtonReading = reading;
-
-      // Button press (falling edge, assuming active-low)
-      if (reading == LOW) {
-        buttonState = !buttonState;
-        if (buttonState)
-        counter = 0;
-        Encoder::resetRevolutions;
-      }
-    }
-  }
-
-  lastDebouncedState = reading;
-} */
 
 void setup() 
 {
@@ -110,12 +104,27 @@ void loop()
   timer.update();
 
   Encoder::update();
+  
   updateGPS();
 
 if (readWorkSwitch()) {
     neopixelWrite(RGB_LED, 0, 2, 0);
-  }
-  else {
+
+    float targetRPM = calculateTargetShaftRPM(GPS.speedMPH, targetSeedingRate, seedPerRev, 60.0f);
+    float actualRPM = Encoder::rpm;
+
+    uint8_t pwmValue = computePWM(targetRPM, actualRPM);
+
+    setMotorPWM(pwmValue);
+    
+    DBG_PRINT("Target RPM: ");
+    DBG_PRINT(targetRPM);
+    DBG_PRINT(" | Actual RPM: ");
+    DBG_PRINT(actualRPM);
+    DBG_PRINT(" | PWM: ");
+    DBG_PRINTLN(pwmValue);
+
+} else {
     neopixelWrite(RGB_LED, 2, 0, 0);
   }
 
@@ -127,10 +136,6 @@ if (readWorkSwitch()) {
     updateOLEDgps();
     digitalWrite(CAL_LED, LOW);
   }
-
-  //handleBootButton();
-
-  //handleCalButton();  //motor.cpp
 
   updateMotorControl();
 

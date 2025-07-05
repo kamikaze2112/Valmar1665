@@ -84,8 +84,6 @@ namespace Encoder {
 
   void update() {
 
-  DBG_PRINTLN("Encoder::update called");
-
   readAndTrackTotalPulses();  // <-- always track pulse deltas
 
   unsigned long now = millis();

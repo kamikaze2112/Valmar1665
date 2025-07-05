@@ -8,6 +8,8 @@ struct IncomingData {
   float calibrationWeight;
   bool motorTestSwitch;
   int motorTestPWM;
+  bool speedTestSwitch;
+  float speedTestSpeed;
 } __attribute__((packed));
 
 // Outgoing data to send to remote

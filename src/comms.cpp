@@ -6,7 +6,7 @@
 #include "comms.h"
 #include "globals.h"  // Assuming all outgoing variables are defined here
 
-bool resetRevs = true;
+bool resetRevs = false;
 
 // Receiver MAC address: 98:3D:AE:E9:26:58
 uint8_t peerAddress[] = { 0x98, 0x3D, 0xAE, 0xE9, 0x26, 0x58 };
@@ -24,18 +24,23 @@ void onDataRecv(const uint8_t *mac, const uint8_t *incoming, int len) {
     memcpy(&incomingData, incoming, sizeof(IncomingData));
     
     calibrationMode = incomingData.calibrationMode;
-      
-    if (!calibrationMode && resetRevs) {
-      Encoder::resetRevolutions();
-      resetRevs = false;
-    } else if (calibrationMode && !resetRevs) {
-      Encoder::resetRevolutions();
-      resetRevs = true;
-    }
+    calibrationWeight = incomingData.calibrationWeight;
+    targetSeedingRate = incomingData.seedingRate;
 
     motorTestSwitch = incomingData.motorTestSwitch;
     motorTestPWM = incomingData.motorTestPWM;
-  
+    speedTestSwitch = incomingData.speedTestSwitch;
+    speedTestSpeed = incomingData.speedTestSpeed;  
+
+    if (!calibrationMode && !resetRevs) {
+      seedPerRev = calculateSeedPerRev(Encoder::revs, calibrationWeight);
+      resetRevs = true;
+
+    } else if (calibrationMode && resetRevs) {
+      Encoder::resetRevolutions();
+      resetRevs = false;
+
+    }
   }
 }
 // === Send status callback (optional debugging) ===

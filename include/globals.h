@@ -55,9 +55,28 @@ extern int errorCode;
 
 void initPins();
 
+// PWM stuff
+
+extern float Kp;
+extern float Ki;
+extern float Kd;
+
+extern float pidIntegral;
+extern float pidPrevError;
+extern float pidOutput;
+
+extern const float maxPWM;
+extern const float minPWM; // Minimum to overcome motor deadband
+
 extern bool calibrationMode;
+extern float calibrationWeight;
+extern float seedPerRev;
+extern float targetRPM;
 extern bool motorTestSwitch;
 extern int motorTestPWM;
+extern bool speedTestSwitch;
+extern float speedTestSpeed;
+extern float targetSeedingRate;
 
 // Returns 1 if the switch is active (pressed), 0 if not
 int readWorkSwitch();
@@ -70,5 +89,10 @@ void setupLED();
 void initDisplay();
 void updateOLEDgps();
 void updateOLEDcal();
+
+float calculateSeedPerRev(float totalRevs, float calibrationWeight);
+float calculateTargetShaftRPM(float speedMph, float targetRateLbPerAcre, float seedPerRev, float implementWidthFt);
+
+uint8_t computePWM(float targetRPM, float actualRPM);
 
 #endif // GLOBALS_H

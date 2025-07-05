@@ -15,8 +15,27 @@
 // Global Variables
 
 bool calibrationMode = false;
+float calibrationWeight = 0.00f;
+float seedPerRev = 0.00f;
+float targetRPM = 0.0f;
 bool motorTestSwitch = false;
 int motorTestPWM = 10;
+bool speedTestSwitch = false;
+float speedTestSpeed = 0.0f;
+float targetSeedingRate = 0.0f;
+
+// PID stuff
+
+float Kp = 1.2f;
+float Ki = 0.3f;
+float Kd = 0.05f;
+
+float pidIntegral = 0.0f;
+float pidPrevError = 0.0f;
+float pidOutput = 0.0f;
+
+const float maxPWM = 255.0f;
+const float minPWM = 30.0f; // Minimum to overcome motor deadband
 
 // OLED Setup
 #define SCREEN_WIDTH 128
@@ -43,6 +62,8 @@ const int BOOT_BTN    = 0;
 double counter = 0.00;
 double shaftRPM = 0;
 int errorCode = 0;
+
+
 
 void initPins() {
     DBG_PRINTLN("Init Pins...");
@@ -230,4 +251,56 @@ void updateOLEDcal() {
         display.print(motorLabel);
     }
     display.display();
+}
+
+float calculateSeedPerRev(float totalRevs, float calibrationWeight)
+{
+    if (totalRevs == 0) return 0.0f; // Avoid divide-by-zero
+
+    DBG_PRINTLN(totalRevs);
+    DBG_PRINTLN(calibrationWeight);
+
+    return calibrationWeight / totalRevs;  // lb/rev
+}
+
+float calculateTargetShaftRPM(float speedMph, float targetRateLbPerAcre, float seedPerRev, float implementWidthFt)
+{
+    if (seedPerRev == 0) return 0.0f; // Avoid divide-by-zero
+
+    // Acres per minute = (speed in mph) × (width in ft) ÷ 495
+    float acresPerMinute = (speedMph * implementWidthFt) / 495.0f;
+
+    // Pounds per minute needed = desired rate * acres per minute
+    float lbsPerMinute = targetRateLbPerAcre * acresPerMinute;
+
+    // Shaft RPM needed = lb/min ÷ lb/rev × (1 rev/min)
+    float shaftRPM = lbsPerMinute / seedPerRev;
+
+    return shaftRPM;
+}
+
+uint8_t computePWM(float targetRPM, float actualRPM)
+{
+    float error = targetRPM - actualRPM;
+
+    // Integrate error
+    pidIntegral += error;
+
+    // Optional: clamp integral to avoid wind-up
+    if (pidIntegral > 1000.0f) pidIntegral = 1000.0f;
+    if (pidIntegral < -1000.0f) pidIntegral = -1000.0f;
+
+    // Derivative
+    float derivative = error - pidPrevError;
+
+    // PID output
+    pidOutput = (Kp * error) + (Ki * pidIntegral) + (Kd * derivative);
+    pidPrevError = error;
+
+    // Clamp and apply deadband
+    if (pidOutput < 0.0f) pidOutput = 0.0f;
+    if (pidOutput > maxPWM) pidOutput = maxPWM;
+    if (pidOutput > 0.0f && pidOutput < minPWM) pidOutput = minPWM;
+
+    return (uint8_t)pidOutput;
 }

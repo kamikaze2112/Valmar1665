@@ -78,18 +78,31 @@ static void parseTime(const char *utc)
 
 static void parseGPRMC(const char *nmea) 
 {
+  if (speedTestSwitch) {          // use test speed regardless of fix status.
+  
+    GPS.speedMPH = speedTestSpeed;
+  
+  }
+
   if (!validateChecksum(nmea)) return;
 
   const char *status = getField(nmea, 2);
   GPS.fixValid = (status[0] == 'A');
 
+  if (!GPS.fixValid && !speedTestSwitch) GPS.speedMPH = 0;
   if (!GPS.fixValid) return;
 
   parseTime(getField(nmea, 1));
  
   const char *speedStr = getField(nmea, 7);
   float speedKnots = atof(speedStr);
-  GPS.speedMPH = speedKnots * 1.15078f;
+  
+  if (!speedTestSwitch) {         // use gps based speed when fix available.
+                         
+    GPS.speedMPH = speedKnots * 1.15078f;
+  
+  }
+
 }
 
 static void parseGPGGA(const char *nmea) 
