@@ -16,6 +16,7 @@ github:  https://github.com/kamikaze2112/Valmar1665
 #include "motor.h"
 #include "encoder.h"
 #include "comms.h"
+#include "oled.h"
 #include <FastLED.h>
 #include "nonBlockingTimer.h"
 

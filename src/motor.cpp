@@ -39,33 +39,28 @@ void updateMotorControl() {
   // Highest priority: Motor test mode from screen
   if (motorTestSwitch) {
     setMotorPWM(motorTestPWM);
+    motorActive = true;
     return;
   }
 
   // Next priority: Calibration button
   if (isCalButtonPressed()) {
-    setMotorPWM(255);  // Run at 100%
-    // Keep updating encoder during hold
-    //Encoder::update();
+    setMotorPWM(255);
+    motorActive = true;
     return;
   }
 
   // Work switch active
   if (readWorkSwitch()) {
-    // Placeholder: run motor at 100% for now
-    setMotorPWM(targetRPM);
 
-    // Later you’ll replace this with PID output:
-    // float targetRPM = calculateTargetRPM(...);
-    // float actualRPM = getEncoderRPM();
-    // float output = pid.compute(targetRPM, actualRPM);
-    // setMotorPWM(output);
-    
+    setMotorPWM(targetRPM);
+    motorActive = true;    
     return;
   }
 
   // None active — stop the motor
   setMotorPWM(0);
+  motorActive = false;
 }
 
 void setMotorPWM(int pwm){

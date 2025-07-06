@@ -1,12 +1,6 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-// OLED Setup
-#include <Adafruit_SSD1306.h>
-
-//Global display object
-extern Adafruit_SSD1306 display;
-
 #define DEBUG_MODE 1 // toggle 1 for on, and 0 for off
 #define NMEA_OUTPUT 0 // 1 for on, prints NMEA sentences to serial console.  0 for off.
 
@@ -85,10 +79,6 @@ int readWorkSwitch();
 extern int workSwitchState;
 
 void setupLED();
-
-void initDisplay();
-void updateOLEDgps();
-void updateOLEDcal();
 
 float calculateSeedPerRev(float totalRevs, float calibrationWeight);
 float calculateTargetShaftRPM(float speedMph, float targetRateLbPerAcre, float seedPerRev, float implementWidthFt);
