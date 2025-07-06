@@ -72,6 +72,13 @@ bool lastButtonReading = HIGH;
 bool lastDebouncedState = HIGH;
 unsigned long lastDebounceTime = 0;
 
+void gpsTask(void* param) {
+  while (true) {
+    updateGPS();        // call your existing function
+    vTaskDelay(pdMS_TO_TICKS(5));  // 5ms delay between reads
+  }
+}
+
 void setup() 
 {
   Serial0.begin(115200);
@@ -90,6 +97,7 @@ void setup()
   initDisplay();
   
   setupGPS();
+  xTaskCreatePinnedToCore(gpsTask, "gpsTask", 4096, NULL, 1, NULL, 1);
 
   setupComms();
 
@@ -106,8 +114,6 @@ void loop()
 
   Encoder::update();
   
-  updateGPS();
-
 if (readWorkSwitch()) {
     neopixelWrite(RGB_LED, 0, 2, 0);
 
@@ -117,16 +123,18 @@ if (readWorkSwitch()) {
     uint8_t pwmValue = computePWM(targetRPM, actualRPM);
 
     setMotorPWM(pwmValue);
-    
-    DBG_PRINT("Target RPM: ");
+
+
+/*     DBG_PRINT("Target RPM: ");
     DBG_PRINT(targetRPM);
     DBG_PRINT(" | Actual RPM: ");
     DBG_PRINT(actualRPM);
     DBG_PRINT(" | PWM: ");
-    DBG_PRINTLN(pwmValue);
+    DBG_PRINTLN(pwmValue); */
 
 } else {
     neopixelWrite(RGB_LED, 2, 0, 0);
+
   }
 
   if (calibrationMode) {

@@ -52,8 +52,6 @@ void updateMotorControl() {
 
   // Work switch active
   if (readWorkSwitch()) {
-
-    setMotorPWM(targetRPM);
     motorActive = true;    
     return;
   }

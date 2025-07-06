@@ -22,6 +22,9 @@ void setupGPS()
     delay(100);
     gps.end();
     delay(100);
+
+    gps.setRxBufferSize(1024);
+
     gps.begin(115200, SERIAL_8N1, GPS_TXD, GPS_RXD);
     delay(100);
 
@@ -121,13 +124,13 @@ static void parseGPGGA(const char *nmea)
   GPS.numSats = atoi(satStr);
 }
 
-static void parseGPVTG(const char *nmea) {
+/* static void parseGPVTG(const char *nmea) {
   if (!validateChecksum(nmea)) return;
 
-  //const char *speedKnotsStr = getField(nmea, 5);
-  //float speedKnots = atof(speedKnotsStr);
-  //GPS.speedMPH = speedKnots * 1.15078f;  // Optional
-}
+  const char *speedKnotsStr = getField(nmea, 5);
+  float speedKnots = atof(speedKnotsStr);
+  GPS.speedMPH = speedKnots * 1.15078f;  // Optional
+} */
 
 void updateGPS() 
 {
@@ -147,8 +150,8 @@ void updateGPS()
         parseGPRMC(buffer);
       else if (strncmp(buffer, "$GPGGA", 6) == 0)
         parseGPGGA(buffer);
-      else if (strncmp(buffer, "$GPVTG", 6) == 0)
-        parseGPVTG(buffer);
+/*       else if (strncmp(buffer, "$GPVTG", 6) == 0)
+        parseGPVTG(buffer); */
 
       pos = 0;
     } else if (pos < sizeof(buffer) - 1) {
