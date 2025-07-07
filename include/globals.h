@@ -71,6 +71,8 @@ extern int motorTestPWM;
 extern bool speedTestSwitch;
 extern float speedTestSpeed;
 extern float targetSeedingRate;
+extern float implementWidth;
+extern float actualRate;
 
 // Returns 1 if the switch is active (pressed), 0 if not
 int readWorkSwitch();
@@ -84,5 +86,7 @@ float calculateSeedPerRev(float totalRevs, float calibrationWeight);
 float calculateTargetShaftRPM(float speedMph, float targetRateLbPerAcre, float seedPerRev, float implementWidthFt);
 
 uint8_t computePWM(float targetRPM, float actualRPM);
+
+float calculateApplicationRate();
 
 #endif // GLOBALS_H

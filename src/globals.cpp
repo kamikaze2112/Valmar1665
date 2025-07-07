@@ -21,6 +21,8 @@ int motorTestPWM = 10;
 bool speedTestSwitch = false;
 float speedTestSpeed = 0.0f;
 float targetSeedingRate = 0.0f;
+float implementWidth = 60.0f;
+float actualRate = 0.0f;
 
 // PID stuff
 
@@ -148,4 +150,13 @@ uint8_t computePWM(float targetRPM, float actualRPM)
     if (pidOutput > 0.0f && pidOutput < minPWM) pidOutput = minPWM;
 
     return (uint8_t)pidOutput;
+}
+
+float calculateApplicationRate() {
+    if (GPS.speedMPH <= 0.1) return 0.0;  // Avoid division by zero when stationary
+    
+    float lbsPerAcre = (Encoder::rpm * seedPerRev * 43560.0) / 
+                       (GPS.speedMPH * implementWidth * 5280.0 / 60.0);
+    
+    return lbsPerAcre;
 }

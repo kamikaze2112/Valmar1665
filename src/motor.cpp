@@ -7,7 +7,6 @@
 bool motorActive = false;
 unsigned long lastUpdate = 0;
 const unsigned long updateInterval = 10;  // 100 ms
-float actualRate = 0.0;
 bool hasPrinted = false;
 
 bool lastCalBtnState = false;

@@ -50,7 +50,7 @@ void debugPrint() {
     DBG_PRINT("Incoming speedTestSpeed: ");
     DBG_PRINTLN(incomingData.speedTestSpeed);
   
-*/  
+ 
     DBG_PRINT("Incoming seedingRate: ");
     DBG_PRINTLN(incomingData.seedingRate);
 
@@ -62,7 +62,7 @@ void debugPrint() {
 
     DBG_PRINT("seedPerRev: ");
     DBG_PRINTLN(seedPerRev);
-
+*/ 
 }
 
 const unsigned long DEBOUNCE_DELAY = 50;  // ms
@@ -123,7 +123,7 @@ if (readWorkSwitch()) {
     uint8_t pwmValue = computePWM(targetRPM, actualRPM);
 
     setMotorPWM(pwmValue);
-
+    actualRate = calculateApplicationRate();
 
 /*     DBG_PRINT("Target RPM: ");
     DBG_PRINT(targetRPM);
