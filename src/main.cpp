@@ -134,7 +134,7 @@ if (readWorkSwitch()) {
 
 } else {
     neopixelWrite(RGB_LED, 2, 0, 0);
-
+    actualRate = 0.0f;
   }
 
   if (calibrationMode) {
