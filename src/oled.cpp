@@ -56,8 +56,7 @@ void updateOLEDgps() {
 
     // Compose and right-align FIX
     char fixStr[10];
-    snprintf(fixStr, sizeof(fixStr), "FIX:%d", GPS.fixValid ? 1 : 0);
-
+    snprintf(fixStr, sizeof(fixStr), "FIX:%d", GPS.fixType);
     int16_t x1, y1;
     uint16_t w, h;
     display.getTextBounds(fixStr, 0, 0, &x1, &y1, &w, &h);
@@ -86,7 +85,7 @@ void updateOLEDgps() {
     display.setTextSize(1);
     display.setCursor(0, SCREEN_HEIGHT - 8);
     display.print("SATS:");
-    display.print(GPS.numSats);
+    display.print(GPS.satellites);
 
     // Placeholder variable for motor state
     extern bool motorActive;  // Declare it somewhere in your globals

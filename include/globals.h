@@ -33,6 +33,7 @@ extern const int CAL_LED;
 extern const int CAL_BTN;
 extern const int GPS_RXD;
 extern const int GPS_TXD;
+extern const int GPS_BAUD;
 extern const int MOTOR_PWM;
 extern const int MOTOR_DIR;
 extern const int WORK_SW;

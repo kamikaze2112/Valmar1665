@@ -74,7 +74,7 @@ unsigned long lastDebounceTime = 0;
 
 void gpsTask(void* param) {
   while (true) {
-    updateGPS();        // call your existing function
+    readGPSData();        // call your existing function
     vTaskDelay(pdMS_TO_TICKS(5));  // 5ms delay between reads
   }
 }
@@ -96,7 +96,8 @@ void setup()
   
   initDisplay();
   
-  setupGPS();
+  initGPS();
+
   xTaskCreatePinnedToCore(gpsTask, "gpsTask", 4096, NULL, 1, NULL, 1);
 
   setupComms();

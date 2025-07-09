@@ -81,8 +81,8 @@ void sendCommsUpdate() {
   lastSendTime = now;
 
   OutgoingData out;
-  out.fixStatus = GPS.fixValid;
-  out.numSats = GPS.numSats;
+  out.fixStatus = GPS.fixType;
+  out.numSats = GPS.satellites;
   out.gpsSpeed = GPS.speedMPH;
   out.gpsHour = GPS.hour;
   out.gpsMinute = GPS.minute;
