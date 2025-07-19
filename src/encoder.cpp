@@ -61,7 +61,7 @@ void updateCounters() {
         completedRevolutions++;
         currentPulses -= PULSES_PER_REV;
         if (debugMode) {
-            Serial0.printf("Revolution completed: %ld total revs\n", completedRevolutions);
+            Serial.printf("Revolution completed: %ld total revs\n", completedRevolutions);
         }
     }
     
@@ -70,12 +70,12 @@ void updateCounters() {
         completedRevolutions--;
         currentPulses += PULSES_PER_REV;
         if (debugMode) {
-            Serial0.printf("Reverse revolution: %ld total revs\n", completedRevolutions);
+            Serial.printf("Reverse revolution: %ld total revs\n", completedRevolutions);
         }
     }
     
     if (debugMode && abs(rawPulses) > 100) {
-        Serial0.printf("Large pulse count: %d, currentPulses=%d, completedRevs=%ld\n", 
+        Serial.printf("Large pulse count: %d, currentPulses=%d, completedRevs=%ld\n", 
                      rawPulses, currentPulses, completedRevolutions);
     }
 }
@@ -131,7 +131,7 @@ void begin(int pinA) {
     clearRPMHistory();
     
     if (debugMode) {
-        Serial0.println("Encoder initialized with simplified tracking");
+        Serial.println("Encoder initialized with simplified tracking");
     }
 }
 
@@ -142,7 +142,7 @@ void resetRevolutions() {
     revs = 0.0;
     
     if (debugMode) {
-        Serial0.println("Revolution counter reset");
+        Serial.println("Revolution counter reset");
     }
 }
 
@@ -171,9 +171,9 @@ void update() {
     
     // Debug RPM spikes
     if (debugMode && abs(newRPM - rpm) > 500) {
-        Serial0.printf("RPM change: %0.1f -> %0.1f, deltaRevs=%0.3f, elapsedMs=%lu\n", 
+        Serial.printf("RPM change: %0.1f -> %0.1f, deltaRevs=%0.3f, elapsedMs=%lu\n", 
                      rpm, newRPM, deltaRevs, elapsedMs);
-        Serial0.printf("  currentRevs=%0.3f, completedRevs=%ld, currentPulses=%d\n", 
+        Serial.printf("  currentRevs=%0.3f, completedRevs=%ld, currentPulses=%d\n", 
                      currentRevs, completedRevolutions, currentPulses);
     }
     

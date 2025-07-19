@@ -7,7 +7,7 @@ String nmeaBuffer = "";
 
 void initGPS() {
   Serial1.begin(GPS_BAUD, SERIAL_8N1, GPS_RXD, GPS_TXD);
-  Serial0.println("GPS UART initialized");
+  Serial.println("GPS UART initialized");
 }
 
 void readGPSData() {

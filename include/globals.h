@@ -5,9 +5,9 @@
 #define NMEA_OUTPUT 0 // 1 for on, prints NMEA sentences to serial console.  0 for off.
 
 #if DEBUG_MODE
-  #define DBG_PRINT(x)     Serial0.print(x)
-  #define DBG_PRINTLN(x)   Serial0.println(x)
-  #define DBG_WRITE(x)     Serial0.write(x)
+  #define DBG_PRINT(x)     Serial.print(x)
+  #define DBG_PRINTLN(x)   Serial.println(x)
+  #define DBG_WRITE(x)     Serial.write(x)
 
 #else
   #define DBG_PRINT(x)     ((void)0)
@@ -16,9 +16,9 @@
 #endif
 
 #if NMEA_OUTPUT
-  #define GPS_PRINT(x)     Serial0.print(x)
-  #define GPS_PRINTLN(x)   Serial0.println(x)
-  #define GPS_WRITE(x)     Serial0.write(x)
+  #define GPS_PRINT(x)     Serial.print(x)
+  #define GPS_PRINTLN(x)   Serial.println(x)
+  #define GPS_WRITE(x)     Serial.write(x)
 
 #else
   #define GPS_PRINT(x)     ((void)0)

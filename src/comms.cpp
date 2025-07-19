@@ -4,6 +4,7 @@
 #include "encoder.h"
 #include "motor.h"
 #include "comms.h"
+#include "prefs.h"
 #include "globals.h"  // Assuming all outgoing variables are defined here
 
 bool resetRevs = false;
@@ -34,6 +35,7 @@ void onDataRecv(const uint8_t *mac, const uint8_t *incoming, int len) {
 
     if (!calibrationMode && !resetRevs) {
       seedPerRev = calculateSeedPerRev(Encoder::revs, calibrationWeight);
+      savePrefs();
       resetRevs = true;
 
     } else if (calibrationMode && resetRevs) {
