@@ -17,6 +17,7 @@ github:  https://github.com/kamikaze2112/Valmar1665
 #include "encoder.h"
 #include "comms.h"
 #include "oled.h"
+#include "prefs.h"
 #include <FastLED.h>
 #include "nonBlockingTimer.h"
 
@@ -63,6 +64,7 @@ void debugPrint() {
     DBG_PRINT("seedPerRev: ");
     DBG_PRINTLN(seedPerRev);
 */ 
+
 }
 
 const unsigned long DEBOUNCE_DELAY = 50;  // ms
@@ -81,7 +83,7 @@ void gpsTask(void* param) {
 
 void setup() 
 {
-  Serial0.begin(115200);
+  Serial.begin(115200);
 
   DBG_PRINTLN("**********************");
   DBG_PRINTLN("");
@@ -104,8 +106,11 @@ void setup()
 
   Encoder::begin(ENC_A);
 
+  loadPrefs();
+  
   digitalWrite(PWR_LED, HIGH);
 
+  DBG_PRINTLN("Setup Complete.");
 }
 
 void loop()
