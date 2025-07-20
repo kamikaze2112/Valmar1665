@@ -65,7 +65,7 @@ void loadPrefs() {
 
         seedPerRev = prefs.getFloat("seedPerRev", 0.0f);
         Encoder::revs = prefs.getFloat("calibrationRevs", 0.0f);
-        calibrationWeight = prefs.getFloat("calibrationWeight", 0.0f);
+        calibrationWeight = prefs.getFloat("calWeight", 0.0f);
 
         targetSeedingRate = prefs.getFloat("targetRate", 0.0f);
 

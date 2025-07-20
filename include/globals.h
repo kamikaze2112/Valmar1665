@@ -1,6 +1,8 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+extern const char* APP_VERSION;
+
 #define DEBUG_MODE 1 // toggle 1 for on, and 0 for off
 #define NMEA_OUTPUT 0 // 1 for on, prints NMEA sentences to serial console.  0 for off.
 

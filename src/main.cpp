@@ -25,7 +25,7 @@ NonBlockingTimer timer;
 
 void debugPrint() {
 
-/*     DBG_PRINT("Incoming calibrationMode: ");
+/*  DBG_PRINT("Incoming calibrationMode: ");
     DBG_PRINTLN(incomingData.calibrationMode);
 
     DBG_PRINT("Incoming seedingRate: ");
@@ -64,6 +64,8 @@ void debugPrint() {
     DBG_PRINT("seedPerRev: ");
     DBG_PRINTLN(seedPerRev);
 */ 
+
+  //DBG_PRINTLN(screenPaired);
 
 }
 
@@ -111,6 +113,7 @@ void setup()
   setupComms();
 
   digitalWrite(PWR_LED, HIGH);
+
   DBG_PRINTLN("Setup Complete.");
 }
 

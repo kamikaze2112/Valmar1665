@@ -20,6 +20,7 @@ static esp_now_peer_info_t peerInfo;
 
 // Storage for received values
 IncomingData incomingData = {};
+OutgoingData outgoingData = {};
 
 // Track last send time
 unsigned long lastSendTime = 0;
@@ -55,8 +56,6 @@ void addPeer(const uint8_t mac[6]) {
 }
 
 void onDataRecv(const uint8_t *mac, const uint8_t *incoming, int len) {
-  Serial.print("Data recieved from :");
-  printMac(mac);
 
   if (len < sizeof(PacketType)) return;
 
@@ -78,7 +77,6 @@ void onDataRecv(const uint8_t *mac, const uint8_t *incoming, int len) {
         
       incomingData.type = PACKET_TYPE_DATA;
       memcpy(&incomingData, incoming, min(len, (int)sizeof(IncomingData)));
-      Serial.println("Data packet received.");
 
       calibrationMode = incomingData.calibrationMode;
       calibrationWeight = incomingData.calibrationWeight;
@@ -133,20 +131,24 @@ void sendCommsUpdate() {
   if (now - lastSendTime < sendInterval) return;
   lastSendTime = now;
 
-  OutgoingData out;
-  out.fixStatus = GPS.fixType;
-  out.numSats = GPS.satellites;
-  out.gpsSpeed = GPS.speedMPH;
-  out.gpsHour = GPS.hour;
-  out.gpsMinute = GPS.minute;
-  out.gpsSecond = GPS.second;
-  out.calibrationRevs = Encoder::revs;
-  out.workSwitch = readWorkSwitch();
-  out.motorActive = motorActive;
-  out.shaftRPM = Encoder::rpm;
-  out.errorCode = errorCode;  // Assuming you have this defined
-  out.actualRate = actualRate;
-  esp_err_t result = esp_now_send(screenAddress, (uint8_t *)&out, sizeof(out));
+  outgoingData.fixStatus = GPS.fixType;
+  outgoingData.numSats = GPS.satellites;
+  outgoingData.gpsSpeed = GPS.speedMPH;
+  outgoingData.gpsHour = GPS.hour;
+  outgoingData.gpsMinute = GPS.minute;
+  outgoingData.gpsSecond = GPS.second;
+  outgoingData.calibrationRevs = Encoder::revs;
+  outgoingData.workSwitch = readWorkSwitch();
+  outgoingData.motorActive = motorActive;
+  outgoingData.shaftRPM = Encoder::rpm;
+  outgoingData.errorCode = errorCode;  // Assuming you have this defined
+  outgoingData.actualRate = actualRate;
+
+  strncpy(outgoingData.controllerVersion, APP_VERSION, sizeof(outgoingData.controllerVersion));
+  outgoingData.controllerVersion[sizeof(outgoingData.controllerVersion) - 1] = '\0';  // null-terminate just in case
+  
+  outgoingData.type = PACKET_TYPE_DATA;
+  esp_err_t result = esp_now_send(screenAddress, (uint8_t *)&outgoingData, sizeof(outgoingData));
 
   if (result != ESP_OK) {
       DBG_PRINT("ESP-NOW send error: ");

@@ -20,6 +20,7 @@ struct IncomingData {
 } __attribute__((packed));
 
 struct OutgoingData {
+  PacketType type = PACKET_TYPE_DATA;
   int fixStatus;
   int numSats;
   float gpsSpeed;
@@ -32,10 +33,12 @@ struct OutgoingData {
   double shaftRPM;
   int errorCode;
   float actualRate;
+  char controllerVersion[12];
 } __attribute__((packed));
 
 // Public access to received data
 extern IncomingData incomingData;
+extern OutgoingData outgoingData;
 
 // Call during setup
 void setupComms();
