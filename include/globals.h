@@ -43,12 +43,17 @@ extern const int OLED_SCL;
 extern const int OLED_SDA;
 extern const uint8_t RGB_LED;
 extern const int BOOT_BTN;
+
+// global variables
 extern double counter;
 extern bool motorActive;
 extern double shaftRPM;
 extern int errorCode;
+extern bool screenPaired;
+extern int workSwitchState;
 
-void initPins();
+extern uint8_t screenAddress[6];
+extern uint8_t broadcastAddress[6];
 
 // PWM stuff
 
@@ -74,12 +79,12 @@ extern float speedTestSpeed;
 extern float targetSeedingRate;
 extern float implementWidth;
 extern float actualRate;
+extern bool pairingMode;
+
+void initPins();
 
 // Returns 1 if the switch is active (pressed), 0 if not
 int readWorkSwitch();
-
-// Optional: a global that always has the most recent debounced state
-extern int workSwitchState;
 
 void setupLED();
 
@@ -89,5 +94,7 @@ float calculateTargetShaftRPM(float speedMph, float targetRateLbPerAcre, float s
 uint8_t computePWM(float targetRPM, float actualRPM);
 
 float calculateApplicationRate();
+
+void handlePairing();
 
 #endif // GLOBALS_H

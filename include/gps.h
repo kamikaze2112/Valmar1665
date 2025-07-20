@@ -19,7 +19,10 @@ struct GPSData {
 };
 
 // Function prototypes
+
+// Initializes GPS module
 void initGPS();
+
 void readGPSData();
 void parseNMEA(String sentence);
 void parseGGA(String sentence);

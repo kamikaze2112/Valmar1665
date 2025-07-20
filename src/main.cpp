@@ -102,25 +102,28 @@ void setup()
 
   xTaskCreatePinnedToCore(gpsTask, "gpsTask", 4096, NULL, 1, NULL, 1);
 
-  setupComms();
-
   Encoder::begin(ENC_A);
 
   loadPrefs();
-  
-  digitalWrite(PWR_LED, HIGH);
 
+  loadComms();
+
+  setupComms();
+
+  digitalWrite(PWR_LED, HIGH);
   DBG_PRINTLN("Setup Complete.");
 }
 
 void loop()
 {
 
+  handlePairing();
+
   timer.update();
 
   Encoder::update();
   
-if (readWorkSwitch()) {
+if (readWorkSwitch() && !pairingMode) {
     neopixelWrite(RGB_LED, 0, 2, 0);
 
     float targetRPM = calculateTargetShaftRPM(GPS.speedMPH, targetSeedingRate, seedPerRev, 60.0f);
@@ -138,22 +141,25 @@ if (readWorkSwitch()) {
     DBG_PRINT(" | PWM: ");
     DBG_PRINTLN(pwmValue); */
 
-} else {
+} else if (!readWorkSwitch() && !pairingMode) {
     neopixelWrite(RGB_LED, 2, 0, 0);
     actualRate = 0.0f;
-  }
+} else if (!readWorkSwitch() && pairingMode) {
+    neopixelWrite(RGB_LED, 0, 0, 2);
+}
 
-  if (calibrationMode) {
+if (calibrationMode) {
     updateOLEDcal();
     digitalWrite(CAL_LED, HIGH);
-  }
-  else {
+} else {
     updateOLEDgps();
     digitalWrite(CAL_LED, LOW);
-  }
+}
 
-  updateMotorControl();
+updateMotorControl();
 
-  sendCommsUpdate();
+if (screenPaired) {
+    sendCommsUpdate();
+}
   
 }

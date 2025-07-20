@@ -1,8 +1,15 @@
 #pragma once
 #include <Arduino.h>
 
+// Define packet types
+enum PacketType : uint8_t {
+    PACKET_TYPE_DATA = 0,
+    PACKET_TYPE_PAIR_SEND = 1,
+    PACKET_TYPE_PAIR_ACK = 2
+};
 // Existing structs
 struct IncomingData {
+  PacketType type = PACKET_TYPE_DATA;
   bool calibrationMode;
   float seedingRate;
   float calibrationWeight;
@@ -27,22 +34,6 @@ struct OutgoingData {
   float actualRate;
 } __attribute__((packed));
 
-// New enum for packet types
-enum PacketType : uint8_t {
-  PACKET_TYPE_DATA = 0x01,
-  PACKET_TYPE_PAIR_REQUEST = 0xF0,
-  PACKET_TYPE_PAIR_ACK = 0xF1
-};
-
-// New packet wrapper struct
-struct Packet {
-  uint8_t type;
-  union {
-    IncomingData incomingData;
-    // future payloads can go here
-  } payload;
-} __attribute__((packed));
-
 // Public access to received data
 extern IncomingData incomingData;
 
@@ -52,6 +43,5 @@ void setupComms();
 // Call this every ~300–350ms
 void sendCommsUpdate();
 
-// New pairing mode control functions
-void beginPairingMode();
-void pairingLoop();
+void sendPairingACK();
+void printMac(const uint8_t *mac);

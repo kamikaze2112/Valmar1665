@@ -57,7 +57,36 @@ double counter = 0.00;
 double shaftRPM = 0;
 int errorCode = 0;
 
+// Local variables
 
+unsigned long buttonPressStart = 0;
+bool buttonHeld = false;
+bool pairingTriggered = false;
+unsigned long lastPairingTime = 0;
+
+// Functions
+
+void handlePairing() {
+      bool buttonState = digitalRead(BOOT_BTN);
+
+  if (buttonState == LOW) {
+      if (!buttonHeld) {
+          buttonPressStart = millis();
+          buttonHeld = true;
+          pairingTriggered = false;  // reset on fresh press
+      } else if ((millis() - buttonPressStart >= 3000) && !pairingTriggered) {
+          pairingMode = true;
+          lastPairingTime = 0;
+          pairingTriggered = true;  // ✅ prevent repeat triggers
+          Serial.println("🔁 3-second hold detected, entering pairing mode");
+      }
+  } else {
+      // Reset everything when button released
+      buttonHeld = false;
+      pairingTriggered = false;
+      buttonPressStart = 0;
+  }
+}
 
 void initPins() {
     DBG_PRINTLN("Init Pins...");
@@ -161,3 +190,4 @@ float calculateApplicationRate() {
     
     return lbsPerAcre;
 }
+
