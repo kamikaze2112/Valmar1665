@@ -58,15 +58,18 @@ void debugPrint() {
     DBG_PRINT("Incoming calibrationWeight: ");
     DBG_PRINTLN(incomingData.calibrationWeight);
 
-    DBG_PRINT("Calibration revs: ");
-    DBG_PRINTLN(Encoder::revs);
 
-    DBG_PRINT("seedPerRev: ");
-    DBG_PRINTLN(seedPerRev);
+
 */ 
 
   //DBG_PRINTLN(screenPaired);
 
+    DBG_PRINT("calibrationMode: ");
+    DBG_PRINTLN(calibrationMode ? "true" : "false");
+    DBG_PRINT("Calibration revs: ");
+    DBG_PRINTLN(Encoder::revs);
+    DBG_PRINT("seedPerRev: ");
+    DBG_PRINTLN(seedPerRev);
 }
 
 const unsigned long DEBOUNCE_DELAY = 50;  // ms
@@ -127,9 +130,9 @@ void loop()
   Encoder::update();
   
 if (readWorkSwitch() && !pairingMode) {
-    neopixelWrite(RGB_LED, 0, 2, 0);
+    neopixelWrite(RGB_LED, 0, 100, 0);
 
-    float targetRPM = calculateTargetShaftRPM(GPS.speedMPH, targetSeedingRate, seedPerRev, 60.0f);
+    float targetRPM = calculateTargetShaftRPM(GPS.speedMPH, targetSeedingRate, seedPerRev, workingWidth);
     float actualRPM = Encoder::rpm;
 
     uint8_t pwmValue = computePWM(targetRPM, actualRPM);
@@ -145,10 +148,10 @@ if (readWorkSwitch() && !pairingMode) {
     DBG_PRINTLN(pwmValue); */
 
 } else if (!readWorkSwitch() && !pairingMode) {
-    neopixelWrite(RGB_LED, 2, 0, 0);
+    neopixelWrite(RGB_LED, 100, 0, 0);
     actualRate = 0.0f;
 } else if (!readWorkSwitch() && pairingMode) {
-    neopixelWrite(RGB_LED, 0, 0, 2);
+    neopixelWrite(RGB_LED, 0, 0, 100);
 }
 
 if (calibrationMode) {

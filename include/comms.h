@@ -17,6 +17,8 @@ struct IncomingData {
   int motorTestPWM;
   bool speedTestSwitch;
   float speedTestSpeed;
+  float workingWidth;
+  int numberOfRuns;
 } __attribute__((packed));
 
 struct OutgoingData {
@@ -30,6 +32,7 @@ struct OutgoingData {
   double calibrationRevs;
   bool workSwitch;
   bool motorActive;
+  float seedPerRev;
   double shaftRPM;
   int errorCode;
   float actualRate;

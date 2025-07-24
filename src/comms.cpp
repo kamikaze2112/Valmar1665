@@ -7,14 +7,16 @@
 #include "prefs.h"
 #include "globals.h"  // Assuming all outgoing variables are defined here
 
+
+uint8_t broadcastAddress[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };\
+uint8_t screenAddress[6];
+
 bool resetRevs = false;
 bool screenPaired = false;
 bool pairingMode = false;
 
 // Receiver MAC address: 98:3D:AE:E9:26:58
 
-uint8_t screenAddress[6];
-uint8_t broadcastAddress[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
 static esp_now_peer_info_t peerInfo;
 
@@ -50,9 +52,11 @@ void addPeer(const uint8_t mac[6]) {
             screenPaired = false;
         } else {
               screenPaired = true;
+              saveComms();
         }
     }
     printMac(mac);
+    DBG_PRINTLN(screenPaired);
 }
 
 void onDataRecv(const uint8_t *mac, const uint8_t *incoming, int len) {
@@ -85,10 +89,13 @@ void onDataRecv(const uint8_t *mac, const uint8_t *incoming, int len) {
       motorTestSwitch = incomingData.motorTestSwitch;
       motorTestPWM = incomingData.motorTestPWM;
       speedTestSwitch = incomingData.speedTestSwitch;
-      speedTestSpeed = incomingData.speedTestSpeed;  
+      speedTestSpeed = incomingData.speedTestSpeed;
 
     if (!calibrationMode && !resetRevs) {
-        seedPerRev = calculateSeedPerRev(Encoder::revs, calibrationWeight);
+        seedPerRev = calculateSeedPerRev(Encoder::revs, calibrationWeight, numberOfRuns);
+
+        DBG_PRINT("seedPerRev");
+        DBG_PRINTLN(seedPerRev);
         savePrefs();
         resetRevs = true;
 
@@ -143,6 +150,7 @@ void sendCommsUpdate() {
   outgoingData.shaftRPM = Encoder::rpm;
   outgoingData.errorCode = errorCode;  // Assuming you have this defined
   outgoingData.actualRate = actualRate;
+  outgoingData.seedPerRev = seedPerRev;
 
   strncpy(outgoingData.controllerVersion, APP_VERSION, sizeof(outgoingData.controllerVersion));
   outgoingData.controllerVersion[sizeof(outgoingData.controllerVersion) - 1] = '\0';  // null-terminate just in case

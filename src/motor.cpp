@@ -62,7 +62,7 @@ void updateMotorControl() {
 
 void setMotorPWM(int pwm){
 
-  digitalWrite(MOTOR_DIR, LOW);
+  digitalWrite(MOTOR_DIR, HIGH);
   analogWrite(MOTOR_PWM, pwm);
 
 }

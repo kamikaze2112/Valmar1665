@@ -24,8 +24,9 @@ int motorTestPWM = 10;
 bool speedTestSwitch = false;
 float speedTestSpeed = 0.0f;
 float targetSeedingRate = 0.0f;
-float implementWidth = 60.0f;
+float workingWidth = 60.0f;
 float actualRate = 0.0f;
+int numberOfRuns = 8;
 
 // PID stuff
 
@@ -44,8 +45,8 @@ const float minPWM = 30.0f; // Minimum to overcome motor deadband
 const int PWR_LED     = 4;
 const int CAL_LED     = 5;
 const int CAL_BTN     = 6;
-const int GPS_RXD     = 15;
-const int GPS_TXD     = 7;
+const int GPS_RXD     = 7;          //reversed for new gps module
+const int GPS_TXD     = 15;         //reversed for new gps module
 const int GPS_BAUD    = 460800;
 const int MOTOR_PWM   = 16;
 const int MOTOR_DIR   = 17;
@@ -133,14 +134,14 @@ int readWorkSwitch() {
   return workSwitchState;
 }
 
-float calculateSeedPerRev(float totalRevs, float calibrationWeight)
+float calculateSeedPerRev(float totalRevs, float calibrationWeight, int runs)
 {
     if (totalRevs == 0) return 0.0f; // Avoid divide-by-zero
 
     DBG_PRINTLN(totalRevs);
     DBG_PRINTLN(calibrationWeight);
 
-    return calibrationWeight / totalRevs;  // lb/rev
+    return (calibrationWeight * numberOfRuns) / totalRevs;  // lb/rev
 }
 
 float calculateTargetShaftRPM(float speedMph, float targetRateLbPerAcre, float seedPerRev, float implementWidthFt)
@@ -189,7 +190,7 @@ float calculateApplicationRate() {
     if (GPS.speedMPH <= 0.1) return 0.0;  // Avoid division by zero when stationary
     
     float lbsPerAcre = (Encoder::rpm * seedPerRev * 43560.0) / 
-                       (GPS.speedMPH * implementWidth * 5280.0 / 60.0);
+                       (GPS.speedMPH * workingWidth* 5280.0 / 60.0);
     
     return lbsPerAcre;
 }

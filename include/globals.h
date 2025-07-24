@@ -53,6 +53,8 @@ extern double shaftRPM;
 extern int errorCode;
 extern bool screenPaired;
 extern int workSwitchState;
+extern float seedPerRev;
+extern int numberOfRuns;
 
 extern uint8_t screenAddress[6];
 extern uint8_t broadcastAddress[6];
@@ -79,7 +81,7 @@ extern int motorTestPWM;
 extern bool speedTestSwitch;
 extern float speedTestSpeed;
 extern float targetSeedingRate;
-extern float implementWidth;
+extern float workingWidth;
 extern float actualRate;
 extern bool pairingMode;
 
@@ -90,7 +92,7 @@ int readWorkSwitch();
 
 void setupLED();
 
-float calculateSeedPerRev(float totalRevs, float calibrationWeight);
+float calculateSeedPerRev(float totalRevs, float calibrationWeight, int runs);
 float calculateTargetShaftRPM(float speedMph, float targetRateLbPerAcre, float seedPerRev, float implementWidthFt);
 
 uint8_t computePWM(float targetRPM, float actualRPM);
