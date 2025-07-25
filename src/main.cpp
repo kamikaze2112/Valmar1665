@@ -61,15 +61,19 @@ void debugPrint() {
     DBG_PRINT("calibrationMode: ");
     DBG_PRINTLN(calibrationMode ? "true" : "false");
 
-
-*/ 
-
-  //DBG_PRINTLN(screenPaired);
-
     DBG_PRINT("Calibration revs: ");
     DBG_PRINTLN(calRevs);
     DBG_PRINT("seedPerRev: ");
     DBG_PRINTLN(seedPerRev);
+
+  DBG_PRINTLN(screenPaired);
+    */ 
+
+
+DBG_PRINT("errorRaised: ");
+DBG_PRINT(outgoingData.errorRaised);
+DBG_PRINT(" Code: ");
+DBG_PRINTLN(outgoingData.errorCode);
 
   }
 
@@ -89,6 +93,43 @@ void gpsTask(void* param) {
   }
 }
 
+// Optional: adjust sampling period
+const TickType_t checkInterval = pdMS_TO_TICKS(10);  // Check every 10ms
+const uint32_t stallThresholdMs = 200;
+const uint32_t stallThresholdTicks = stallThresholdMs / 10;  // Based on check interval
+const float stallRPMThreshold = 0.1f;
+
+void stallMonitorTask(void* parameter) {
+    uint32_t stallCounter = 0;
+
+    while (true) {
+        bool workActive = readWorkSwitch();
+        float rpm = Encoder::rpm;
+
+        if (workActive && rpm < stallRPMThreshold && !errorRaised) {
+            stallCounter++;
+            
+            if (stallCounter >= stallThresholdTicks) {
+                setMotorPWM(0);
+                outgoingData.errorCode = 3; // No shaft RPM
+                outgoingData.errorRaised = true;
+                errorCode = 3;
+                errorRaised = true;
+
+                // Burst ESP-NOW error message 3 times
+                for (int i = 0; i < 3; i++) {
+                    outgoingData.type = PACKET_TYPE_DATA;
+                    esp_now_send(screenAddress, (uint8_t *)&outgoingData, sizeof(outgoingData));                
+                    vTaskDelay(pdMS_TO_TICKS(15));      // Short delay between sends
+                } 
+            }
+        } else {
+            stallCounter = 0;  // Reset if conditions don't persist
+        }
+
+        vTaskDelay(checkInterval);
+    }
+}
 
 void setup() 
 {
@@ -109,7 +150,24 @@ void setup()
   
   initGPS();
 
-  xTaskCreatePinnedToCore(gpsTask, "gpsTask", 4096, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(
+    gpsTask, 
+    "gpsTask", 
+    4096, 
+    NULL, 
+    1, 
+    NULL, 
+    1);
+
+  xTaskCreatePinnedToCore(
+    stallMonitorTask,
+    "StallMonitor", //Function
+    2048,       // Stack size
+    NULL,       // Parameter
+    2,          // Priority
+    NULL,       // Task handle (optional)
+    APP_CPU_NUM // Core (typically 1)
+);
 
   Encoder::begin(ENC_A);
 
@@ -172,6 +230,8 @@ if (calibrationMode) {
 
 if (speedTestSwitch) {
   GPS.speedMPH = speedTestSpeed;
+} else if (!speedTestSwitch && GPS.fixType == 0) {
+  GPS.speedMPH = 0;
 }
 
 updateMotorControl();
@@ -197,10 +257,55 @@ if (screenPaired) {
         }
 
         // Only update when Enter is pressed
-        calRevs = clean.toFloat();
-        Serial.print("calibrationRevs set to: ");
-        Serial.println(calRevs);
+        errorCode = clean.toInt();
+        outgoingData.errorCode = errorCode;
+        
+        if (errorCode > 0) {
+          errorRaised = true;
+          
+        } else if (errorCode == 0) {
+          errorRaised = false;
+        }
+
+        outgoingData.errorRaised = errorRaised;
     }
 
+/*           static String inputBuffer;
+
+    while (Serial.available()) {
+        char incomingChar = Serial.read();
+
+        if (incomingChar == '\n' || incomingChar == '\r') {
+            // Trim and process the input when Enter is pressed
+            inputBuffer.trim();
+            if (inputBuffer.length() == 1 && isDigit(inputBuffer[0])) {
+                int code = inputBuffer.toInt();
+                if (code > 0 && code <= 3) {
+                    outgoingData.errorCode = code;
+                    outgoingData.errorRaised = true;
+                    Serial.printf("Injected error code: %d\n", code);
+                } else if (code == 0) {
+                    outgoingData.errorCode = 0;
+                    outgoingData.errorRaised = false;
+                } else {
+                    Serial.println("Error: Code must be 0–3");
+                }
+            } else {
+                Serial.println("Invalid input. Enter a single digit (0–3).");
+            }
+
+            inputBuffer = "";  // Clear for next entry
+        } else {
+            inputBuffer += incomingChar;  // Accumulate input
+        }
+    } */
+
+/*     // Error Actual rate +/- 25% of target rate
+    if (targetSeedingRate > 0.0f && (actualRate <= targetSeedingRate * 0.75f || actualRate >= targetSeedingRate * 1.25f))  {
+      outgoingData.rateOutOfBounds = true;
+    } else {
+      outgoingData.rateOutOfBounds = false;
+    }
+ */
 
 }

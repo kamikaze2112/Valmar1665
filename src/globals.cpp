@@ -61,7 +61,7 @@ const uint8_t RGB_LED = 48;
 const int BOOT_BTN    = 0;
 double counter = 0.00;
 double shaftRPM = 0;
-int errorCode = 0;  //0 no error, 1 rate warning, 2 motor stopped
+int errorCode = 0;  //0 no error, 1 min pwm, 2 max pwm, 3 no rpm
 
 // Local variables
 
@@ -180,10 +180,16 @@ uint8_t computePWM(float targetRPM, float actualRPM)
     pidOutput = (Kp * error) + (Ki * pidIntegral) + (Kd * derivative);
     pidPrevError = error;
 
-    // Clamp and apply deadband
+    // Clamp and apply deadband, raise errors as necessary.
     if (pidOutput < 0.0f) pidOutput = 0.0f;
-    if (pidOutput > maxPWM) pidOutput = maxPWM;
-    if (pidOutput > 0.0f && pidOutput < minPWM) pidOutput = minPWM;
+    if (pidOutput > maxPWM) {
+        pidOutput = maxPWM;
+        errorCode = 2; // Max pwm error
+    }
+    if (pidOutput > 0.0f && pidOutput < minPWM) {
+        pidOutput = minPWM;
+        errorCode = 1; // Min pwm error
+    }
 
     return (uint8_t)pidOutput;
 }

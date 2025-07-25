@@ -1,5 +1,7 @@
 #pragma once
 #include <Arduino.h>
+#include <WiFi.h>
+#include <esp_now.h>
 
 // Define packet types
 enum PacketType : uint8_t {
@@ -42,6 +44,7 @@ struct OutgoingData {
   bool errorRaised;
   float actualRate;
   char controllerVersion[12];
+  bool rateOutOfBounds;
 } __attribute__((packed));
 
 // Public access to received data
