@@ -182,13 +182,16 @@ uint8_t computePWM(float targetRPM, float actualRPM)
 
     // Clamp and apply deadband, raise errors as necessary.
     if (pidOutput < 0.0f) pidOutput = 0.0f;
-    if (pidOutput > maxPWM) {
+    if (pidOutput > maxPWM && errorCode != 3) {
         pidOutput = maxPWM;
         errorCode = 2; // Max pwm error
     }
-    if (pidOutput > 0.0f && pidOutput < minPWM) {
+    if (pidOutput > 0.0f && pidOutput < minPWM && errorCode != 3) {
         pidOutput = minPWM;
         errorCode = 1; // Min pwm error
+    } else {
+        errorCode = 0;
+        errorRaised = false;
     }
 
     return (uint8_t)pidOutput;

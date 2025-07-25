@@ -73,7 +73,9 @@ void debugPrint() {
 DBG_PRINT("errorRaised: ");
 DBG_PRINT(outgoingData.errorRaised);
 DBG_PRINT(" Code: ");
-DBG_PRINTLN(outgoingData.errorCode);
+DBG_PRINT(outgoingData.errorCode);
+DBG_PRINT(" errorAck: ");
+DBG_PRINTLN(incomingData.errorAck);
 
   }
 

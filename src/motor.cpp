@@ -62,12 +62,7 @@ void updateMotorControl() {
 
 void setMotorPWM(int pwm){
 
-  if (pwm < minPWM && readWorkSwitch()) {
-      digitalWrite(MOTOR_DIR, HIGH);
-      analogWrite(MOTOR_PWM, 30);
-      errorCode = 1; // Motor min speed
-  } else {
-      digitalWrite(MOTOR_DIR, HIGH);
-      analogWrite(MOTOR_PWM, pwm);
-  }
+  digitalWrite(MOTOR_DIR, HIGH);
+  analogWrite(MOTOR_PWM, pwm);
+
 }

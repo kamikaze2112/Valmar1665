@@ -159,7 +159,8 @@ void sendCommsUpdate() {
   outgoingData.errorCode = errorCode;  // Assuming you have this defined
   outgoingData.actualRate = actualRate;
   outgoingData.seedPerRev = seedPerRev;
-
+  outgoingData.errorRaised = errorRaised;
+  
   strncpy(outgoingData.controllerVersion, APP_VERSION, sizeof(outgoingData.controllerVersion));
   outgoingData.controllerVersion[sizeof(outgoingData.controllerVersion) - 1] = '\0';  // null-terminate just in case
   
@@ -170,6 +171,12 @@ void sendCommsUpdate() {
       DBG_PRINT("ESP-NOW send error: ");
       DBG_PRINTLN(result);
   }
+
+  if (incomingData.errorAck) {
+    errorRaised = false;
+    errorCode = 0;
+  }
+
 }
 
 void sendPairingACK() {
