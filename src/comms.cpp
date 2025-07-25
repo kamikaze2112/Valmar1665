@@ -91,16 +91,24 @@ void onDataRecv(const uint8_t *mac, const uint8_t *incoming, int len) {
       speedTestSwitch = incomingData.speedTestSwitch;
       speedTestSpeed = incomingData.speedTestSpeed;
 
-    if (!calibrationMode && !resetRevs) {
-        seedPerRev = calculateSeedPerRev(Encoder::revs, calibrationWeight, numberOfRuns);
+    if (incomingData.manualSeedUpdate) {
+      seedPerRev = incomingData.newSeedPerRev;
+      savePrefs();
+      incomingData.manualSeedUpdate = false;
+    }
+
+    if (incomingData.calcSeedPerRev) {
+        seedPerRev = calculateSeedPerRev(calRevs, calibrationWeight, numberOfRuns);
 
         DBG_PRINT("seedPerRev");
         DBG_PRINTLN(seedPerRev);
         savePrefs();
         resetRevs = true;
+        incomingData.calcSeedPerRev = false;
 
     } else if (calibrationMode && resetRevs) {
         Encoder::resetRevolutions();
+        calRevs = 0.0f;
         resetRevs = false;
     }
   }

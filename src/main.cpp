@@ -58,19 +58,21 @@ void debugPrint() {
     DBG_PRINT("Incoming calibrationWeight: ");
     DBG_PRINTLN(incomingData.calibrationWeight);
 
+    DBG_PRINT("calibrationMode: ");
+    DBG_PRINTLN(calibrationMode ? "true" : "false");
 
 
 */ 
 
   //DBG_PRINTLN(screenPaired);
 
-    DBG_PRINT("calibrationMode: ");
-    DBG_PRINTLN(calibrationMode ? "true" : "false");
     DBG_PRINT("Calibration revs: ");
-    DBG_PRINTLN(Encoder::revs);
+    DBG_PRINTLN(calRevs);
     DBG_PRINT("seedPerRev: ");
     DBG_PRINTLN(seedPerRev);
-}
+
+  }
+
 
 const unsigned long DEBOUNCE_DELAY = 50;  // ms
 
@@ -78,6 +80,7 @@ int buttonState = 0;  // toggled state (0 or 1)
 bool lastButtonReading = HIGH;
 bool lastDebouncedState = HIGH;
 unsigned long lastDebounceTime = 0;
+bool sprUpdate = false;
 
 void gpsTask(void* param) {
   while (true) {
@@ -85,6 +88,7 @@ void gpsTask(void* param) {
     vTaskDelay(pdMS_TO_TICKS(5));  // 5ms delay between reads
   }
 }
+
 
 void setup() 
 {
@@ -128,6 +132,10 @@ void loop()
   timer.update();
 
   Encoder::update();
+
+/*   if (calibrationMode){
+    calRevs = Encoder::revs;
+  } */
   
 if (readWorkSwitch() && !pairingMode) {
     neopixelWrite(RGB_LED, 0, 100, 0);
@@ -162,10 +170,37 @@ if (calibrationMode) {
     digitalWrite(CAL_LED, LOW);
 }
 
+if (speedTestSwitch) {
+  GPS.speedMPH = speedTestSpeed;
+}
+
 updateMotorControl();
 
 if (screenPaired) {
     sendCommsUpdate();
 }
   
+
+    if (Serial.available()) {
+        String input = Serial.readStringUntil('\n');  // Wait until Enter is pressed
+
+        // Clean and parse the input
+        String clean = "";
+        bool dotSeen = false;
+        for (char c : input) {
+            if (c >= '0' && c <= '9') {
+                clean += c;
+            } else if (c == '.' && !dotSeen) {
+                clean += c;
+                dotSeen = true;
+            }
+        }
+
+        // Only update when Enter is pressed
+        calRevs = clean.toFloat();
+        Serial.print("calibrationRevs set to: ");
+        Serial.println(calRevs);
+    }
+
+
 }

@@ -131,7 +131,7 @@ void begin(int pinA) {
     clearRPMHistory();
     
     if (debugMode) {
-        Serial.println("Encoder initialized with simplified tracking");
+        Serial.println("Encoder initialized.");
     }
 }
 
@@ -161,7 +161,7 @@ void update() {
     // Get current revolution count
     float currentRevs = getTotalRevolutions();
     float deltaRevs = currentRevs - revs;
-    
+        
     // Calculate RPM
     float elapsedMinutes = float(elapsedMs) / 60000.0;
     float newRPM = (elapsedMinutes > 0) ? (deltaRevs / elapsedMinutes) : 0.0;

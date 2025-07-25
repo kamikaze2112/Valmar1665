@@ -96,8 +96,6 @@ void parseRMC(String sentence) {
         GPS.speedKnots = speedStr.toFloat();
         GPS.speedMPH = knotsToMPH(GPS.speedKnots);
       }
-    } else {
-      GPS.speedMPH = speedTestSpeed;
     }
   }
 }
@@ -117,5 +115,10 @@ int convertToMDT(int utcHour) {
 }
 
 float knotsToMPH(float knots) {
-  return knots * 1.15078;
+
+  if (knots <= 0.5){     // filter off speeds of less than ~0.6 mph
+      return 0;
+  } else {
+      return knots * 1.15078;
+  }
 }

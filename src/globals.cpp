@@ -27,6 +27,8 @@ float targetSeedingRate = 0.0f;
 float workingWidth = 60.0f;
 float actualRate = 0.0f;
 int numberOfRuns = 8;
+float calRevs;
+bool errorRaised = false;
 
 // PID stuff
 
@@ -59,7 +61,7 @@ const uint8_t RGB_LED = 48;
 const int BOOT_BTN    = 0;
 double counter = 0.00;
 double shaftRPM = 0;
-int errorCode = 0;
+int errorCode = 0;  //0 no error, 1 rate warning, 2 motor stopped
 
 // Local variables
 

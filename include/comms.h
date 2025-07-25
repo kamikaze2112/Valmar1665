@@ -13,12 +13,16 @@ struct IncomingData {
   bool calibrationMode;
   float seedingRate;
   float calibrationWeight;
+  bool calcSeedPerRev;
   bool motorTestSwitch;
   int motorTestPWM;
   bool speedTestSwitch;
   float speedTestSpeed;
   float workingWidth;
   int numberOfRuns;
+  float newSeedPerRev;
+  bool manualSeedUpdate;
+  bool errorAck;
 } __attribute__((packed));
 
 struct OutgoingData {
@@ -35,6 +39,7 @@ struct OutgoingData {
   float seedPerRev;
   double shaftRPM;
   int errorCode;
+  bool errorRaised;
   float actualRate;
   char controllerVersion[12];
 } __attribute__((packed));

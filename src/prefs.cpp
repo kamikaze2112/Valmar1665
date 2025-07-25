@@ -64,10 +64,10 @@ void loadPrefs() {
     if (prefsValid) {
 
         seedPerRev = prefs.getFloat("seedPerRev", 0.0f);
-        targetSeedingRate = prefs.getFloat("targetRate", 0.0f);
 
     }
 
+    DBG_PRINTLN("Prefs Loaded.");
     prefs.end();
 }
 
@@ -76,9 +76,9 @@ void savePrefs() {
     prefs.begin("valmar_slave", false);
 
     prefs.putFloat("seedPerRev", seedPerRev);
-    prefs.putInt("targetRate", targetSeedingRate);
     prefs.putBool("prefsValid", true);
 
+    DBG_PRINTLN("Prefs Saved.");
     prefs.end();
 }
 

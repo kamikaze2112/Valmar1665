@@ -45,6 +45,7 @@ extern const int OLED_SCL;
 extern const int OLED_SDA;
 extern const uint8_t RGB_LED;
 extern const int BOOT_BTN;
+extern float calRevs;
 
 // global variables
 extern double counter;
@@ -55,6 +56,7 @@ extern bool screenPaired;
 extern int workSwitchState;
 extern float seedPerRev;
 extern int numberOfRuns;
+extern bool errorRaised;
 
 extern uint8_t screenAddress[6];
 extern uint8_t broadcastAddress[6];
