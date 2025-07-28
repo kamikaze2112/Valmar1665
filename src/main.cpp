@@ -20,6 +20,8 @@ github:  https://github.com/kamikaze2112/Valmar1665
 #include "prefs.h"
 #include <FastLED.h>
 #include "nonBlockingTimer.h"
+#include "errorHandler.h"
+#include "workFunctions.h"
 
 NonBlockingTimer timer;
 
@@ -67,7 +69,7 @@ void debugPrint() {
     DBG_PRINTLN(seedPerRev);
 
   DBG_PRINTLN(screenPaired);
-    */ 
+
 
 
 DBG_PRINT("errorRaised: ");
@@ -76,7 +78,7 @@ DBG_PRINT(" Code: ");
 DBG_PRINT(outgoingData.errorCode);
 DBG_PRINT(" errorAck: ");
 DBG_PRINTLN(incomingData.errorAck);
-
+    */ 
   }
 
 
@@ -113,10 +115,7 @@ void stallMonitorTask(void* parameter) {
             
             if (stallCounter >= stallThresholdTicks) {
                 setMotorPWM(0);
-                outgoingData.errorCode = 3; // No shaft RPM
-                outgoingData.errorRaised = true;
-                errorCode = 3;
-                errorRaised = true;
+                raiseError(3);
 
                 // Burst ESP-NOW error message 3 times
                 for (int i = 0; i < 3; i++) {
@@ -259,55 +258,14 @@ if (screenPaired) {
         }
 
         // Only update when Enter is pressed
-        errorCode = clean.toInt();
-        outgoingData.errorCode = errorCode;
+        int code = clean.toInt();
         
-        if (errorCode > 0) {
-          errorRaised = true;
+        if (code > 0) {
+          raiseError(code);
           
-        } else if (errorCode == 0) {
-          errorRaised = false;
+        } else if (code == 0) {
+          clearError();
         }
-
-        outgoingData.errorRaised = errorRaised;
     }
-
-/*           static String inputBuffer;
-
-    while (Serial.available()) {
-        char incomingChar = Serial.read();
-
-        if (incomingChar == '\n' || incomingChar == '\r') {
-            // Trim and process the input when Enter is pressed
-            inputBuffer.trim();
-            if (inputBuffer.length() == 1 && isDigit(inputBuffer[0])) {
-                int code = inputBuffer.toInt();
-                if (code > 0 && code <= 3) {
-                    outgoingData.errorCode = code;
-                    outgoingData.errorRaised = true;
-                    Serial.printf("Injected error code: %d\n", code);
-                } else if (code == 0) {
-                    outgoingData.errorCode = 0;
-                    outgoingData.errorRaised = false;
-                } else {
-                    Serial.println("Error: Code must be 0–3");
-                }
-            } else {
-                Serial.println("Invalid input. Enter a single digit (0–3).");
-            }
-
-            inputBuffer = "";  // Clear for next entry
-        } else {
-            inputBuffer += incomingChar;  // Accumulate input
-        }
-    } */
-
-/*     // Error Actual rate +/- 25% of target rate
-    if (targetSeedingRate > 0.0f && (actualRate <= targetSeedingRate * 0.75f || actualRate >= targetSeedingRate * 1.25f))  {
-      outgoingData.rateOutOfBounds = true;
-    } else {
-      outgoingData.rateOutOfBounds = false;
-    }
- */
 
 }

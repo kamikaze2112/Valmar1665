@@ -6,6 +6,8 @@
 #include "gps.h"
 #include "encoder.h"
 #include "oled.h"
+#include "errorHandler.h"
+#include "workFunctions.h"
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64

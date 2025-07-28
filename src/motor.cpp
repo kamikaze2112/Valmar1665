@@ -3,6 +3,8 @@
 #include "globals.h"
 #include "gps.h"
 #include "encoder.h"
+#include "errorHandler.h"
+#include "workFunctions.h"
 
 bool motorActive = false;
 unsigned long lastUpdate = 0;

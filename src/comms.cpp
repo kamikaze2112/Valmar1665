@@ -2,11 +2,11 @@
 #include <esp_now.h>
 #include "gps.h"
 #include "encoder.h"
-#include "motor.h"
 #include "comms.h"
 #include "prefs.h"
 #include "globals.h"  // Assuming all outgoing variables are defined here
-
+#include "errorHandler.h"
+#include "workFunctions.h"
 
 uint8_t broadcastAddress[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };\
 uint8_t screenAddress[6];
@@ -79,17 +79,21 @@ void onDataRecv(const uint8_t *mac, const uint8_t *incoming, int len) {
 
   } else if (type == PACKET_TYPE_DATA) {
         
-      incomingData.type = PACKET_TYPE_DATA;
-      memcpy(&incomingData, incoming, min(len, (int)sizeof(IncomingData)));
+    incomingData.type = PACKET_TYPE_DATA;
+    memcpy(&incomingData, incoming, min(len, (int)sizeof(IncomingData)));
 
-      calibrationMode = incomingData.calibrationMode;
-      calibrationWeight = incomingData.calibrationWeight;
-      targetSeedingRate = incomingData.seedingRate;
+    calibrationMode = incomingData.calibrationMode;
+    calibrationWeight = incomingData.calibrationWeight;
+    targetSeedingRate = incomingData.seedingRate;
 
-      motorTestSwitch = incomingData.motorTestSwitch;
-      motorTestPWM = incomingData.motorTestPWM;
-      speedTestSwitch = incomingData.speedTestSwitch;
-      speedTestSpeed = incomingData.speedTestSpeed;
+    motorTestSwitch = incomingData.motorTestSwitch;
+    motorTestPWM = incomingData.motorTestPWM;
+    speedTestSwitch = incomingData.speedTestSwitch;
+    speedTestSpeed = incomingData.speedTestSpeed;
+
+    if (incomingData.errorAck && errorCode == 3) {
+      clearError();
+    }
 
     if (incomingData.manualSeedUpdate) {
       seedPerRev = incomingData.newSeedPerRev;
@@ -156,10 +160,8 @@ void sendCommsUpdate() {
   outgoingData.workSwitch = readWorkSwitch();
   outgoingData.motorActive = motorActive;
   outgoingData.shaftRPM = Encoder::rpm;
-  outgoingData.errorCode = errorCode;  // Assuming you have this defined
   outgoingData.actualRate = actualRate;
   outgoingData.seedPerRev = seedPerRev;
-  outgoingData.errorRaised = errorRaised;
   
   strncpy(outgoingData.controllerVersion, APP_VERSION, sizeof(outgoingData.controllerVersion));
   outgoingData.controllerVersion[sizeof(outgoingData.controllerVersion) - 1] = '\0';  // null-terminate just in case
@@ -170,11 +172,6 @@ void sendCommsUpdate() {
   if (result != ESP_OK) {
       DBG_PRINT("ESP-NOW send error: ");
       DBG_PRINTLN(result);
-  }
-
-  if (incomingData.errorAck) {
-    errorRaised = false;
-    errorCode = 0;
   }
 
 }
