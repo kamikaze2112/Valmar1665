@@ -30,19 +30,6 @@ int numberOfRuns = 8;
 float calRevs;
 bool errorRaised = false;
 
-// PID stuff
-
-float Kp = 1.2f;
-float Ki = 0.3f;
-float Kd = 0.05f;
-
-float pidIntegral = 0.0f;
-float pidPrevError = 0.0f;
-float pidOutput = 0.0f;
-
-const float maxPWM = 255.0f;
-const float minPWM = 30.0f; // Minimum to overcome motor deadband
-
 // Now define the constants
 const int PWR_LED     = 4;
 const int CAL_LED     = 5;
@@ -65,34 +52,7 @@ int errorCode = 0;  //0 no error, 1 min pwm, 2 max pwm, 3 no rpm
 
 // Local variables
 
-unsigned long buttonPressStart = 0;
-bool buttonHeld = false;
-bool pairingTriggered = false;
-unsigned long lastPairingTime = 0;
 
-// Functions
-
-void handlePairing() {
-      bool buttonState = digitalRead(BOOT_BTN);
-
-  if (buttonState == LOW) {
-      if (!buttonHeld) {
-          buttonPressStart = millis();
-          buttonHeld = true;
-          pairingTriggered = false;  // reset on fresh press
-      } else if ((millis() - buttonPressStart >= 3000) && !pairingTriggered) {
-          pairingMode = true;
-          lastPairingTime = 0;
-          pairingTriggered = true;  // ✅ prevent repeat triggers
-          Serial.println("🔁 3-second hold detected, entering pairing mode");
-      }
-  } else {
-      // Reset everything when button released
-      buttonHeld = false;
-      pairingTriggered = false;
-      buttonPressStart = 0;
-  }
-}
 
 void initPins() {
     DBG_PRINTLN("Init Pins...");

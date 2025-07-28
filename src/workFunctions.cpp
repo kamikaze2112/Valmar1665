@@ -6,6 +6,19 @@
 #include "errorHandler.h"
 #include "workFunctions.h"
 
+// PID stuff
+
+float Kp = 1.2f;
+float Ki = 0.3f;
+float Kd = 0.05f;
+
+float pidIntegral = 0.0f;
+float pidPrevError = 0.0f;
+float pidOutput = 0.0f;
+
+const float maxPWM = 255.0f;
+const float minPWM = 30.0f; // Minimum to overcome motor deadband
+
 int readWorkSwitch() {
   static int lastStableState = HIGH;
   static int lastReadState = HIGH;

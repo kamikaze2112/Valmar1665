@@ -14,9 +14,10 @@ uint8_t screenAddress[6];
 bool resetRevs = false;
 bool screenPaired = false;
 bool pairingMode = false;
-
-// Receiver MAC address: 98:3D:AE:E9:26:58
-
+unsigned long buttonPressStart = 0;
+bool buttonHeld = false;
+bool pairingTriggered = false;
+unsigned long lastPairingTime = 0;
 
 static esp_now_peer_info_t peerInfo;
 
@@ -174,6 +175,28 @@ void sendCommsUpdate() {
       DBG_PRINTLN(result);
   }
 
+}
+
+void handlePairing() {
+      bool buttonState = digitalRead(BOOT_BTN);
+
+  if (buttonState == LOW) {
+      if (!buttonHeld) {
+          buttonPressStart = millis();
+          buttonHeld = true;
+          pairingTriggered = false;  // reset on fresh press
+      } else if ((millis() - buttonPressStart >= 3000) && !pairingTriggered) {
+          pairingMode = true;
+          lastPairingTime = 0;
+          pairingTriggered = true;  // ✅ prevent repeat triggers
+          Serial.println("🔁 3-second hold detected, entering pairing mode");
+      }
+  } else {
+      // Reset everything when button released
+      buttonHeld = false;
+      pairingTriggered = false;
+      buttonPressStart = 0;
+  }
 }
 
 void sendPairingACK() {

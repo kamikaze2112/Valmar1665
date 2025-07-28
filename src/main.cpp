@@ -25,70 +25,7 @@ github:  https://github.com/kamikaze2112/Valmar1665
 
 NonBlockingTimer timer;
 
-void debugPrint() {
-
-/*  DBG_PRINT("Incoming calibrationMode: ");
-    DBG_PRINTLN(incomingData.calibrationMode);
-
-    DBG_PRINT("Incoming seedingRate: ");
-    DBG_PRINTLN(incomingData.seedingRate);
-
-    DBG_PRINT("GPS.speedMPH: ");
-    DBG_PRINTLN(GPS.speedMPH);
-    DBG_PRINT("shaftRPM");
-    DBG_PRINTLN(shaftRPM);
-    
-    DBG_PRINT("calibrationMode: ");
-    DBG_PRINTLN(calibrationMode ? "true" : "false");
-
-    DBG_PRINT("Incoming Motor Switch: ");
-    DBG_PRINTLN(incomingData.motorTestSwitch);
-
-    DBG_PRINT("Incoming Motor PWM: ");
-    DBG_PRINTLN(incomingData.motorTestPWM);
-  
-    DBG_PRINT("Incoming speedTestSwitch: ");
-    DBG_PRINTLN(incomingData.speedTestSwitch);
-
-    DBG_PRINT("Incoming speedTestSpeed: ");
-    DBG_PRINTLN(incomingData.speedTestSpeed);
-  
- 
-    DBG_PRINT("Incoming seedingRate: ");
-    DBG_PRINTLN(incomingData.seedingRate);
-
-    DBG_PRINT("Incoming calibrationWeight: ");
-    DBG_PRINTLN(incomingData.calibrationWeight);
-
-    DBG_PRINT("calibrationMode: ");
-    DBG_PRINTLN(calibrationMode ? "true" : "false");
-
-    DBG_PRINT("Calibration revs: ");
-    DBG_PRINTLN(calRevs);
-    DBG_PRINT("seedPerRev: ");
-    DBG_PRINTLN(seedPerRev);
-
-  DBG_PRINTLN(screenPaired);
-
-
-
-DBG_PRINT("errorRaised: ");
-DBG_PRINT(outgoingData.errorRaised);
-DBG_PRINT(" Code: ");
-DBG_PRINT(outgoingData.errorCode);
-DBG_PRINT(" errorAck: ");
-DBG_PRINTLN(incomingData.errorAck);
-    */ 
-  }
-
-
-const unsigned long DEBOUNCE_DELAY = 50;  // ms
-
-int buttonState = 0;  // toggled state (0 or 1)
-bool lastButtonReading = HIGH;
-bool lastDebouncedState = HIGH;
-unsigned long lastDebounceTime = 0;
-bool sprUpdate = false;
+void debugPrint();
 
 void gpsTask(void* param) {
   while (true) {
@@ -97,6 +34,7 @@ void gpsTask(void* param) {
   }
 }
 
+// Motor Stall detection and error flagging
 // Optional: adjust sampling period
 const TickType_t checkInterval = pdMS_TO_TICKS(10);  // Check every 10ms
 const uint32_t stallThresholdMs = 200;
@@ -186,16 +124,16 @@ void setup()
 void loop()
 {
 
-  handlePairing();
+  handlePairing();  // comms.cpp
+
+  updateMotorControl();  // motor.cpp only used for motor testing from screen.
 
   timer.update();
 
-  Encoder::update();
+  Encoder::update();  // encoder.cpp
 
-/*   if (calibrationMode){
-    calRevs = Encoder::revs;
-  } */
-  
+  // start handling work conditions
+
 if (readWorkSwitch() && !pairingMode) {
     neopixelWrite(RGB_LED, 0, 100, 0);
 
@@ -207,19 +145,14 @@ if (readWorkSwitch() && !pairingMode) {
     setMotorPWM(pwmValue);
     actualRate = calculateApplicationRate();
 
-/*     DBG_PRINT("Target RPM: ");
-    DBG_PRINT(targetRPM);
-    DBG_PRINT(" | Actual RPM: ");
-    DBG_PRINT(actualRPM);
-    DBG_PRINT(" | PWM: ");
-    DBG_PRINTLN(pwmValue); */
-
 } else if (!readWorkSwitch() && !pairingMode) {
     neopixelWrite(RGB_LED, 100, 0, 0);
     actualRate = 0.0f;
 } else if (!readWorkSwitch() && pairingMode) {
     neopixelWrite(RGB_LED, 0, 0, 100);
 }
+
+  //set the oled and calbutton to calibration mode and vice versa
 
 if (calibrationMode) {
     updateOLEDcal();
@@ -229,18 +162,19 @@ if (calibrationMode) {
     digitalWrite(CAL_LED, LOW);
 }
 
+  //handle test/manual speed input from the screen
 if (speedTestSwitch) {
   GPS.speedMPH = speedTestSpeed;
 } else if (!speedTestSwitch && GPS.fixType == 0) {
   GPS.speedMPH = 0;
 }
 
-updateMotorControl();
-
 if (screenPaired) {
     sendCommsUpdate();
 }
   
+
+  // Used for testing error codes.  can be removed for final version.
 
     if (Serial.available()) {
         String input = Serial.readStringUntil('\n');  // Wait until Enter is pressed
@@ -269,3 +203,57 @@ if (screenPaired) {
     }
 
 }
+
+void debugPrint() {
+
+/*  DBG_PRINT("Incoming calibrationMode: ");
+    DBG_PRINTLN(incomingData.calibrationMode);
+
+    DBG_PRINT("Incoming seedingRate: ");
+    DBG_PRINTLN(incomingData.seedingRate);
+
+    DBG_PRINT("GPS.speedMPH: ");
+    DBG_PRINTLN(GPS.speedMPH);
+    DBG_PRINT("shaftRPM");
+    DBG_PRINTLN(shaftRPM);
+    
+    DBG_PRINT("calibrationMode: ");
+    DBG_PRINTLN(calibrationMode ? "true" : "false");
+
+    DBG_PRINT("Incoming Motor Switch: ");
+    DBG_PRINTLN(incomingData.motorTestSwitch);
+
+    DBG_PRINT("Incoming Motor PWM: ");
+    DBG_PRINTLN(incomingData.motorTestPWM);
+  
+    DBG_PRINT("Incoming speedTestSwitch: ");
+    DBG_PRINTLN(incomingData.speedTestSwitch);
+
+    DBG_PRINT("Incoming speedTestSpeed: ");
+    DBG_PRINTLN(incomingData.speedTestSpeed);
+  
+ 
+    DBG_PRINT("Incoming seedingRate: ");
+    DBG_PRINTLN(incomingData.seedingRate);
+
+    DBG_PRINT("Incoming calibrationWeight: ");
+    DBG_PRINTLN(incomingData.calibrationWeight);
+
+    DBG_PRINT("calibrationMode: ");
+    DBG_PRINTLN(calibrationMode ? "true" : "false");
+
+    DBG_PRINT("Calibration revs: ");
+    DBG_PRINTLN(calRevs);
+    DBG_PRINT("seedPerRev: ");
+    DBG_PRINTLN(seedPerRev);
+
+    DBG_PRINTLN(screenPaired);
+
+    DBG_PRINT("errorRaised: ");
+    DBG_PRINT(outgoingData.errorRaised);
+    DBG_PRINT(" Code: ");
+    DBG_PRINT(outgoingData.errorCode);
+    DBG_PRINT(" errorAck: ");
+    DBG_PRINTLN(incomingData.errorAck);
+    */ 
+  }

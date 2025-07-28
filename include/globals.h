@@ -7,14 +7,16 @@ extern const char* APP_VERSION;
 #define NMEA_OUTPUT 0 // 1 for on, prints NMEA sentences to serial console.  0 for off.
 
 #if DEBUG_MODE
-  #define DBG_PRINT(x)     Serial.print(x)
-  #define DBG_PRINTLN(x)   Serial.println(x)
-  #define DBG_WRITE(x)     Serial.write(x)
+  #define DBG_PRINT(x)          Serial.print(x)
+  #define DBG_PRINTLN(x)        Serial.println(x)
+  #define DBG_WRITE(x)          Serial.write(x)
+  #define DBG_PRINTF(fmt, ...)  Serial.printf(fmt, __VA_ARGS__)
 
 #else
-  #define DBG_PRINT(x)     ((void)0)
-  #define DBG_PRINTLN(x)   ((void)0)
-  #define DBG_WRITE(x)     ((void)0)
+  #define DBG_PRINT(x)          ((void)0)
+  #define DBG_PRINTLN(x)        ((void)0)
+  #define DBG_WRITE(x)          ((void)0)
+  #define DBG_PRINTF(fmt, ...)  ((void)0)
 #endif
 
 #if NMEA_OUTPUT
@@ -61,19 +63,6 @@ extern bool errorRaised;
 extern uint8_t screenAddress[6];
 extern uint8_t broadcastAddress[6];
 
-// PWM stuff
-
-extern float Kp;
-extern float Ki;
-extern float Kd;
-
-extern float pidIntegral;
-extern float pidPrevError;
-extern float pidOutput;
-
-extern const float maxPWM;
-extern const float minPWM; // Minimum to overcome motor deadband
-
 extern bool calibrationMode;
 extern float calibrationWeight;
 extern float seedPerRev;
@@ -88,13 +77,7 @@ extern float actualRate;
 extern bool pairingMode;
 
 void initPins();
-
-
-
 void setupLED();
-
-
-
 void handlePairing();
 
 #endif // GLOBALS_H
