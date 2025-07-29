@@ -36,4 +36,6 @@ public:
 
 extern OTAUpdater otaUpdater;
 
+extern const char* ipCStr;
+
 #endif

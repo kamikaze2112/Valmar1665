@@ -9,5 +9,6 @@ extern Adafruit_SSD1306 display;
 void initDisplay();
 void updateOLEDgps();
 void updateOLEDcal();
+void updateOLEDfw();
 
 #endif

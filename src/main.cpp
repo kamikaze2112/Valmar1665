@@ -133,6 +133,8 @@ if (readWorkSwitch() && !pairingMode && !otaStarted) {
 if (calibrationMode) {
     updateOLEDcal();
     digitalWrite(CAL_LED, HIGH);
+} else if (otaStarted) {
+    updateOLEDfw();
 } else {
     updateOLEDgps();
     digitalWrite(CAL_LED, LOW);

@@ -8,6 +8,9 @@
 #include "oled.h"
 #include "errorHandler.h"
 #include "workFunctions.h"
+#include "comms.h"
+#include "otaUpdate.h"
+#include "bitmap.h"
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -32,17 +35,17 @@ void initDisplay() {
   display.clearDisplay();
 
   // Set text properties
-  display.setTextSize(2);             // Size 2 for larger text
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(25, 26);          // Adjust to center as needed
+  display.setCursor(0,0);          // Adjust to center as needed
 
   // Display the text
-  display.print(F("VALMAR"));
+
+  display.drawBitmap(0,0, valmar_oled, 128, 64, WHITE);
   display.display();
   
   DBG_PRINTLN("Init Display complete.");
   DBG_PRINTLN("");
-  delay(1000);
+  delay(2000);
 
 }
 
@@ -159,3 +162,49 @@ void updateOLEDcal() {
     }
     display.display();
 }
+
+void updateOLEDfw() {
+
+    const char* msg = "FIRMWARE UPDATE";
+    const char* msg2 = "VALMAR_OTA";
+
+    IPAddress ip = WiFi.softAPIP();
+
+    char ipBuffer[16];
+    snprintf(ipBuffer, sizeof(ipBuffer), "%u.%u.%u.%u", ip[0], ip[1], ip[2], ip[3]);
+    const char* ipCStr = ipBuffer;
+
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(SSD1306_WHITE);
+
+    int16_t x1, y1;
+    uint16_t w, h;
+    display.getTextBounds(msg, 0, 0, &x1, &y1, &w, &h);
+
+    int16_t x = (SCREEN_WIDTH - w) / 2;
+    int16_t y = 0;
+
+    display.setCursor(x, y);
+    display.print(msg);
+    
+    // === Horizontal line ===
+    display.drawLine(0, 9, SCREEN_WIDTH - 1, 9, SSD1306_WHITE);
+
+    display.getTextBounds(msg2, 0, 0, &x1, &y1, &w, &h);
+    int16_t ipLabelx = (SCREEN_WIDTH - w) / 2;
+    y = 30;
+    display.setCursor(ipLabelx, y);
+    display.print(msg2);
+
+    display.setTextSize(1);
+    display.getTextBounds(ipCStr, 0, 0, &x1, &y1, &w, &h);
+    int16_t ipAddrx = (SCREEN_WIDTH - w) / 2;
+    y = 45;
+    display.setCursor(ipAddrx, y);
+    display.print(ipCStr);
+    display.display();
+
+}
+
+

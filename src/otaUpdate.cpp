@@ -51,7 +51,7 @@ bool OTAUpdater::startOTAMode() {
     server.begin();
     
     otaActive = true;
-    otaStartTime = millis();    
+    otaStartTime = millis();
     return true;
 }
 
