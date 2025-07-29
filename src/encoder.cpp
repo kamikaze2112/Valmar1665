@@ -47,6 +47,7 @@ void setupPCNT(int pinA) {
 
 void updateCounters() {
     int16_t rawPulses;
+    Encoder::rawPulses = rawPulses;
     pcnt_get_counter_value(PCNT_UNIT, &rawPulses);
     pcnt_counter_clear(PCNT_UNIT);
     
@@ -62,15 +63,6 @@ void updateCounters() {
         currentPulses -= PULSES_PER_REV;
         if (debugMode) {
             Serial.printf("Revolution completed: %ld total revs\n", completedRevolutions);
-        }
-    }
-    
-    // Handle reverse direction if needed
-    while (currentPulses < 0) {
-        completedRevolutions--;
-        currentPulses += PULSES_PER_REV;
-        if (debugMode) {
-            Serial.printf("Reverse revolution: %ld total revs\n", completedRevolutions);
         }
     }
     
@@ -121,6 +113,7 @@ namespace Encoder {
 float rpm = 0.0;
 float revs = 0.0;
 bool isMoving = false;
+int16_t rawPulses;
 
 void begin(int pinA) {
     setupPCNT(pinA);

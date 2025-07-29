@@ -11,6 +11,7 @@ namespace Encoder {
   extern float rpm;
   extern float revs;
   extern bool isMoving;
+  extern int16_t rawPulses;
 }
 
 #endif

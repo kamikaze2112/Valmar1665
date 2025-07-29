@@ -44,7 +44,7 @@ void setup() {
 
   DBG_PRINT("Controller Ver: ");
   DBG_PRINTLN(APP_VERSION);
-  
+
   timer.set(debugPrint, 1000);
     
   initPins();
