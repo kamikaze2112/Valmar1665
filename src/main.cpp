@@ -22,56 +22,17 @@ github:  https://github.com/kamikaze2112/Valmar1665
 #include "nonBlockingTimer.h"
 #include "errorHandler.h"
 #include "workFunctions.h"
+#include "otaUpdate.h"
 
 NonBlockingTimer timer;
 
+static bool otaStarted = false;
+
+void gpsTask(void* param);
+void stallMonitorTask(void* parameter);
 void debugPrint();
 
-void gpsTask(void* param) {
-  while (true) {
-    readGPSData();        // call your existing function
-    vTaskDelay(pdMS_TO_TICKS(5));  // 5ms delay between reads
-  }
-}
-
-// Motor Stall detection and error flagging
-// Optional: adjust sampling period
-const TickType_t checkInterval = pdMS_TO_TICKS(10);  // Check every 10ms
-const uint32_t stallThresholdMs = 200;
-const uint32_t stallThresholdTicks = stallThresholdMs / 10;  // Based on check interval
-const float stallRPMThreshold = 0.1f;
-
-void stallMonitorTask(void* parameter) {
-    uint32_t stallCounter = 0;
-
-    while (true) {
-        bool workActive = readWorkSwitch();
-        float rpm = Encoder::rpm;
-
-        if (workActive && rpm < stallRPMThreshold && !errorRaised) {
-            stallCounter++;
-            
-            if (stallCounter >= stallThresholdTicks) {
-                setMotorPWM(0);
-                raiseError(3);
-
-                // Burst ESP-NOW error message 3 times
-                for (int i = 0; i < 3; i++) {
-                    outgoingData.type = PACKET_TYPE_DATA;
-                    esp_now_send(screenAddress, (uint8_t *)&outgoingData, sizeof(outgoingData));                
-                    vTaskDelay(pdMS_TO_TICKS(15));      // Short delay between sends
-                } 
-            }
-        } else {
-            stallCounter = 0;  // Reset if conditions don't persist
-        }
-
-        vTaskDelay(checkInterval);
-    }
-}
-
-void setup() 
-{
+void setup() {
   Serial.begin(115200);
 
   DBG_PRINTLN("**********************");
@@ -116,13 +77,25 @@ void setup()
 
   setupComms();
 
+  outgoingData.fwUpdateComplete = true;
+
   digitalWrite(PWR_LED, HIGH);
+
 
   DBG_PRINTLN("Setup Complete.");
 }
 
-void loop()
-{
+
+
+void loop() {
+
+  if (incomingData.fwUpdateMode && !otaStarted) {
+        if (otaUpdater.startOTAMode()) {
+        otaStarted = true;
+    }
+  }
+
+  otaUpdater.handleOTA(); // Only processes if OTA is active
 
   handlePairing();  // comms.cpp
 
@@ -134,7 +107,7 @@ void loop()
 
   // start handling work conditions
 
-if (readWorkSwitch() && !pairingMode) {
+if (readWorkSwitch() && !pairingMode && !otaStarted) {
     neopixelWrite(RGB_LED, 0, 100, 0);
 
     float targetRPM = calculateTargetShaftRPM(GPS.speedMPH, targetSeedingRate, seedPerRev, workingWidth);
@@ -145,10 +118,10 @@ if (readWorkSwitch() && !pairingMode) {
     setMotorPWM(pwmValue);
     actualRate = calculateApplicationRate();
 
-} else if (!readWorkSwitch() && !pairingMode) {
+} else if (!readWorkSwitch() && !pairingMode && !otaStarted) {
     neopixelWrite(RGB_LED, 100, 0, 0);
     actualRate = 0.0f;
-} else if (!readWorkSwitch() && pairingMode) {
+} else if (!readWorkSwitch() && pairingMode && !otaStarted) {
     neopixelWrite(RGB_LED, 0, 0, 100);
 }
 
@@ -169,10 +142,13 @@ if (speedTestSwitch) {
   GPS.speedMPH = 0;
 }
 
-if (screenPaired) {
+if (screenPaired && !otaStarted) {
     sendCommsUpdate();
 }
-  
+
+
+
+
 
   // Used for testing error codes.  can be removed for final version.
 
@@ -202,6 +178,49 @@ if (screenPaired) {
         }
     }
 
+}
+
+void gpsTask(void* param) {
+  while (true) {
+    readGPSData();        // call your existing function
+    vTaskDelay(pdMS_TO_TICKS(5));  // 5ms delay between reads
+  }
+}
+
+// Motor Stall detection and error flagging
+// Optional: adjust sampling period
+const TickType_t checkInterval = pdMS_TO_TICKS(10);  // Check every 10ms
+const uint32_t stallThresholdMs = 200;
+const uint32_t stallThresholdTicks = stallThresholdMs / 10;  // Based on check interval
+const float stallRPMThreshold = 0.1f;
+
+void stallMonitorTask(void* parameter) {
+    uint32_t stallCounter = 0;
+
+    while (true) {
+        bool workActive = readWorkSwitch();
+        float rpm = Encoder::rpm;
+
+        if (workActive && rpm < stallRPMThreshold && errorCode != 3) {
+            stallCounter++;
+            
+            if (stallCounter >= stallThresholdTicks) {
+                setMotorPWM(0);
+                raiseError(3);
+
+                // Burst ESP-NOW error message 3 times
+                for (int i = 0; i < 3; i++) {
+                    outgoingData.type = PACKET_TYPE_DATA;
+                    esp_now_send(screenAddress, (uint8_t *)&outgoingData, sizeof(outgoingData));                
+                    vTaskDelay(pdMS_TO_TICKS(15));      // Short delay between sends
+                } 
+            }
+        } else {
+            stallCounter = 0;  // Reset if conditions don't persist
+        }
+
+        vTaskDelay(checkInterval);
+    }
 }
 
 void debugPrint() {
@@ -256,4 +275,6 @@ void debugPrint() {
     DBG_PRINT(" errorAck: ");
     DBG_PRINTLN(incomingData.errorAck);
     */ 
+
+    DBG_PRINTF("incomingData.fwUpdateMode: %d  otaStarted: %d\n", incomingData.fwUpdateMode, otaStarted);
   }

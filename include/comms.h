@@ -25,6 +25,7 @@ struct IncomingData {
   float newSeedPerRev;
   bool manualSeedUpdate;
   bool errorAck;
+  bool fwUpdateMode;
 } __attribute__((packed));
 
 struct OutgoingData {
@@ -45,6 +46,7 @@ struct OutgoingData {
   float actualRate;
   char controllerVersion[12];
   bool rateOutOfBounds;
+  bool fwUpdateComplete;
 } __attribute__((packed));
 
 // Public access to received data

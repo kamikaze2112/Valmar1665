@@ -29,6 +29,7 @@ float actualRate = 0.0f;
 int numberOfRuns = 8;
 float calRevs;
 bool errorRaised = false;
+bool fwUpdateStatus = false;
 
 // Now define the constants
 const int PWR_LED     = 4;

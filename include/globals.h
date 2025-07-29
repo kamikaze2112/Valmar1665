@@ -59,6 +59,7 @@ extern int workSwitchState;
 extern float seedPerRev;
 extern int numberOfRuns;
 extern bool errorRaised;
+extern bool fwUpdateStatus;
 
 extern uint8_t screenAddress[6];
 extern uint8_t broadcastAddress[6];

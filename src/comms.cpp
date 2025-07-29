@@ -92,7 +92,7 @@ void onDataRecv(const uint8_t *mac, const uint8_t *incoming, int len) {
     speedTestSwitch = incomingData.speedTestSwitch;
     speedTestSpeed = incomingData.speedTestSpeed;
 
-    if (incomingData.errorAck && errorCode == 3) {
+    if (incomingData.errorAck && errorRaised) {
       clearError();
     }
 
