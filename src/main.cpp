@@ -42,6 +42,9 @@ void setup() {
   DBG_PRINTLN("**********************");
   DBG_PRINTLN("");
 
+  DBG_PRINT("Controller Ver: ");
+  DBG_PRINTLN(APP_VERSION);
+  
   timer.set(debugPrint, 1000);
     
   initPins();
@@ -171,8 +174,9 @@ if (screenPaired && !otaStarted) {
         int code = clean.toInt();
         
         if (code > 0) {
-          raiseError(code);
           
+          incomingData.fwUpdateMode = true;
+
         } else if (code == 0) {
           clearError();
         }

@@ -58,7 +58,7 @@ bool OTAUpdater::startOTAMode() {
 void OTAUpdater::setupWebServer() {
     server.on("/", HTTP_GET, [this]() { handleRoot(); });
     server.on("/upload", HTTP_POST, [this]() { handleUpdate(); }, [this]() { handleUpload(); });
-    server.on("/cancel", HTTP_POST, [this]() { 
+    server.on("/cancel", HTTP_GET, [this]() { 
         server.send(200, "text/html", "<h1>Rebooting...</h1><script>setTimeout(function(){window.close();}, 2000);</script>");
         delay(1000);
         ESP.restart();
