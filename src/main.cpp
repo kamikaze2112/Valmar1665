@@ -27,6 +27,8 @@ github:  https://github.com/kamikaze2112/Valmar1665
 NonBlockingTimer timer;
 
 static bool otaStarted = false;
+uint16_t stallThresholdMs = 200;
+bool stallProtection = true;
 
 void gpsTask(void* param);
 void stallMonitorTask(void* parameter);
@@ -151,9 +153,13 @@ if (screenPaired && !otaStarted) {
     sendCommsUpdate();
 }
 
+int newStallDelay = incomingData.stallDelay;
 
+if (stallThresholdMs != newStallDelay) {
+  stallThresholdMs = newStallDelay;
+}
 
-
+stallProtection = incomingData.stallProtection;
 
   // Used for testing error codes.  can be removed for final version.
 
@@ -196,7 +202,7 @@ void gpsTask(void* param) {
 // Motor Stall detection and error flagging
 // Optional: adjust sampling period
 const TickType_t checkInterval = pdMS_TO_TICKS(10);  // Check every 10ms
-const uint32_t stallThresholdMs = 200;
+//uint16_t stallThresholdMs = 200;
 const uint32_t stallThresholdTicks = stallThresholdMs / 10;  // Based on check interval
 const float stallRPMThreshold = 0.1f;
 
@@ -207,22 +213,24 @@ void stallMonitorTask(void* parameter) {
         bool workActive = readWorkSwitch();
         float rpm = Encoder::rpm;
 
-        if (workActive && rpm < stallRPMThreshold && errorCode != 3) {
-            stallCounter++;
-            
-            if (stallCounter >= stallThresholdTicks) {
-                setMotorPWM(0);
-                raiseError(3);
+        if (stallProtection) {
+          if (workActive && rpm < stallRPMThreshold && errorCode != 3) {
+              stallCounter++;
+              
+              if (stallCounter >= stallThresholdTicks) {
+                  setMotorPWM(0);
+                  raiseError(3);
 
-                // Burst ESP-NOW error message 3 times
-                for (int i = 0; i < 3; i++) {
-                    outgoingData.type = PACKET_TYPE_DATA;
-                    esp_now_send(screenAddress, (uint8_t *)&outgoingData, sizeof(outgoingData));                
-                    vTaskDelay(pdMS_TO_TICKS(15));      // Short delay between sends
-                } 
-            }
-        } else {
-            stallCounter = 0;  // Reset if conditions don't persist
+                  // Burst ESP-NOW error message 3 times
+                  for (int i = 0; i < 3; i++) {
+                      outgoingData.type = PACKET_TYPE_DATA;
+                      esp_now_send(screenAddress, (uint8_t *)&outgoingData, sizeof(outgoingData));                
+                      vTaskDelay(pdMS_TO_TICKS(15));      // Short delay between sends
+                  } 
+              }
+          } else {
+              stallCounter = 0;  // Reset if conditions don't persist
+          }
         }
 
         vTaskDelay(checkInterval);
@@ -280,7 +288,10 @@ void debugPrint() {
     DBG_PRINT(outgoingData.errorCode);
     DBG_PRINT(" errorAck: ");
     DBG_PRINTLN(incomingData.errorAck);
-    */ 
-
+    
     DBG_PRINTF("incomingData.fwUpdateMode: %d  otaStarted: %d\n", incomingData.fwUpdateMode, otaStarted);
+     */
+
+     DBG_PRINTF("stallProtection: %d  stallDelay: %d\n", stallProtection, stallThresholdMs);
+
   }

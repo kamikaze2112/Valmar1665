@@ -26,6 +26,8 @@ struct IncomingData {
   bool manualSeedUpdate;
   bool errorAck;
   bool fwUpdateMode;
+  bool stallProtection;
+  int stallDelay;
 } __attribute__((packed));
 
 struct OutgoingData {
