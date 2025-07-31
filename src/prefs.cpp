@@ -19,11 +19,12 @@ void loadComms() {
 
         screenPaired = prefs.getBool("screenPaired", false);
         prefs.getBytes("screenAddress", screenAddress, 6);
-        DBG_PRINTLN("Loaded comms values from NVS");
+        DBG_PRINTLN("Loaded comms values from NVS\n");
 
     } else {
 
         DBG_PRINTLN("No stored comms values in NVS.  Using broadcast as defualt.");
+        DBG_PRINTLN("Entering pairing mode...");
     }
 
     prefs.end();
@@ -51,6 +52,8 @@ void clearComms() {
     prefs.clear();
 
     prefs.end();
+    DBG_PRINTLN("Comms cleared.");
+
 
 }
 
@@ -64,10 +67,12 @@ void loadPrefs() {
     if (prefsValid) {
 
         seedPerRev = prefs.getFloat("seedPerRev", 0.0f);
-
+        DBG_PRINTLN("Prefs Loaded.\n");
+    } else {
+        DBG_PRINTLN("Valid prefs not found.\n");
     }
 
-    DBG_PRINTLN("Prefs Loaded.");
+
     prefs.end();
 }
 
@@ -78,7 +83,7 @@ void savePrefs() {
     prefs.putFloat("seedPerRev", seedPerRev);
     prefs.putBool("prefsValid", true);
 
-    DBG_PRINTLN("Prefs Saved.");
+    DBG_PRINTLN("Prefs Saved.\n");
     prefs.end();
 }
 
@@ -89,5 +94,6 @@ void clearPrefs() {
     prefs.clear();
 
     prefs.end();
+    DBG_PRINTLN("Prefs cleared.");
 
 }

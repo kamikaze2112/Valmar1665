@@ -5,7 +5,7 @@
 #include "encoder.h"
 
 //APP VERSION
-const char* APP_VERSION = "20250730185825";
+const char* APP_VERSION = "20250731112558";
 
 // encoder pinout
 // pin 1 power RED -> yellow
@@ -30,6 +30,8 @@ int numberOfRuns = 8;
 float calRevs;
 bool errorRaised = false;
 bool fwUpdateStatus = false;
+
+
 
 // Now define the constants
 const int PWR_LED     = 4;

@@ -79,6 +79,7 @@ extern float workingWidth;
 extern float actualRate;
 extern bool pairingMode;
 
+
 void initPins();
 void setupLED();
 void handlePairing();

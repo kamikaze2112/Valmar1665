@@ -39,7 +39,7 @@ void setup() {
 
   DBG_PRINTLN("**********************");
   DBG_PRINTLN("");
-  DBG_PRINTLN("Valmar 1665 DEBUG MODE");
+  DBG_PRINTLN("---   Valmar 1665  ---");
   DBG_PRINTLN("");
   DBG_PRINTLN("**********************");
   DBG_PRINTLN("");
@@ -85,7 +85,7 @@ void setup() {
   outgoingData.fwUpdateComplete = true;
   outgoingData.heartbeat = 0;
   outgoingData.controllerBooted = true;
-
+  incomingData.reset = false;
   digitalWrite(PWR_LED, HIGH);
 
 
@@ -95,6 +95,24 @@ void setup() {
 
 
 void loop() {
+
+  //Check for reset flag
+
+  if (incomingData.reset) {
+    DBG_PRINTLN("Init reset...");
+
+    clearPrefs();
+    delay(100);
+    clearComms();
+    delay(100);
+
+    DBG_PRINTLN("Controller reset to defaults.  Rebooting...");
+
+    delay(100);
+
+    ESP.restart();
+
+  }
 
   if (incomingData.fwUpdateMode && !otaStarted) {
         if (otaUpdater.startOTAMode()) {
@@ -292,8 +310,8 @@ void debugPrint() {
     DBG_PRINTLN(incomingData.errorAck);
     
     DBG_PRINTF("incomingData.fwUpdateMode: %d  otaStarted: %d\n", incomingData.fwUpdateMode, otaStarted);
-     */
+   
 
      DBG_PRINTF("stallProtection: %d  stallDelay: %d\n", stallProtection, stallThresholdMs);
-
+  */
   }
