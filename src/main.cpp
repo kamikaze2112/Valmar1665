@@ -83,6 +83,8 @@ void setup() {
   setupComms();
 
   outgoingData.fwUpdateComplete = true;
+  outgoingData.heartbeat = 0;
+  outgoingData.controllerBooted = true;
 
   digitalWrite(PWR_LED, HIGH);
 

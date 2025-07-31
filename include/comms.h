@@ -46,9 +46,11 @@ struct OutgoingData {
   int errorCode;
   bool errorRaised;
   float actualRate;
-  char controllerVersion[12];
+  char controllerVersion[16];
   bool rateOutOfBounds;
   bool fwUpdateComplete;
+  int heartbeat;
+  bool controllerBooted;
 } __attribute__((packed));
 
 // Public access to received data
