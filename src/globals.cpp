@@ -5,7 +5,7 @@
 #include "encoder.h"
 
 //APP VERSION
-const char* APP_VERSION = "20250731112558";
+const char* APP_VERSION = "20250804195530";
 
 // encoder pinout
 // pin 1 power RED -> yellow
@@ -27,7 +27,6 @@ float targetSeedingRate = 0.0f;
 float workingWidth = 60.0f;
 float actualRate = 0.0f;
 int numberOfRuns = 8;
-float calRevs;
 bool errorRaised = false;
 bool fwUpdateStatus = false;
 

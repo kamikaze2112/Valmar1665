@@ -47,7 +47,6 @@ extern const int OLED_SCL;
 extern const int OLED_SDA;
 extern const uint8_t RGB_LED;
 extern const int BOOT_BTN;
-extern float calRevs;
 
 // global variables
 extern double counter;

@@ -181,35 +181,6 @@ if (stallThresholdMs != newStallDelay) {
 
 stallProtection = incomingData.stallProtection;
 
-  // Used for testing error codes.  can be removed for final version.
-
-    if (Serial.available()) {
-        String input = Serial.readStringUntil('\n');  // Wait until Enter is pressed
-
-        // Clean and parse the input
-        String clean = "";
-        bool dotSeen = false;
-        for (char c : input) {
-            if (c >= '0' && c <= '9') {
-                clean += c;
-            } else if (c == '.' && !dotSeen) {
-                clean += c;
-                dotSeen = true;
-            }
-        }
-
-        // Only update when Enter is pressed
-        int code = clean.toInt();
-        
-        if (code > 0) {
-          
-          incomingData.fwUpdateMode = true;
-
-        } else if (code == 0) {
-          clearError();
-        }
-    }
-
 }
 
 void gpsTask(void* param) {
@@ -259,13 +230,13 @@ void stallMonitorTask(void* parameter) {
 
 void debugPrint() {
 
-/*  DBG_PRINT("Incoming calibrationMode: ");
+/*     DBG_PRINT("Incoming calibrationMode: ");
     DBG_PRINTLN(incomingData.calibrationMode);
 
     DBG_PRINT("Incoming seedingRate: ");
     DBG_PRINTLN(incomingData.seedingRate);
 
-    DBG_PRINT("GPS.speedMPH: ");
+ /   DBG_PRINT("GPS.speedMPH: ");
     DBG_PRINTLN(GPS.speedMPH);
     DBG_PRINT("shaftRPM");
     DBG_PRINTLN(shaftRPM);
@@ -296,10 +267,11 @@ void debugPrint() {
     DBG_PRINTLN(calibrationMode ? "true" : "false");
 
     DBG_PRINT("Calibration revs: ");
-    DBG_PRINTLN(calRevs);
+    DBG_PRINTLN(Encoder::revs);
     DBG_PRINT("seedPerRev: ");
     DBG_PRINTLN(seedPerRev);
-
+    DBG_PRINTLN(Encoder::revs);
+    DBG_PRINTLN("-----------------------------------");
     DBG_PRINTLN(screenPaired);
 
     DBG_PRINT("errorRaised: ");
@@ -312,6 +284,6 @@ void debugPrint() {
     DBG_PRINTF("incomingData.fwUpdateMode: %d  otaStarted: %d\n", incomingData.fwUpdateMode, otaStarted);
    
 
-     DBG_PRINTF("stallProtection: %d  stallDelay: %d\n", stallProtection, stallThresholdMs);
-  */
+     DBG_PRINTF("stallProtection: %d  stallDelay: %d\n", stallProtection, stallThresholdMs); */
+  
   }

@@ -103,7 +103,7 @@ void onDataRecv(const uint8_t *mac, const uint8_t *incoming, int len) {
     }
 
     if (incomingData.calcSeedPerRev) {
-        seedPerRev = calculateSeedPerRev(calRevs, calibrationWeight, numberOfRuns);
+        seedPerRev = calculateSeedPerRev(Encoder::revs, calibrationWeight, numberOfRuns);
 
         DBG_PRINT("seedPerRev");
         DBG_PRINTLN(seedPerRev);
@@ -113,7 +113,6 @@ void onDataRecv(const uint8_t *mac, const uint8_t *incoming, int len) {
 
     } else if (calibrationMode && resetRevs) {
         Encoder::resetRevolutions();
-        calRevs = 0.0f;
         resetRevs = false;
     }
   }

@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 Import("env")
 
+if env.IsIntegrationDump():
+   # stop the current script execution
+   Return()
+
+# code below runs for the "build" and other targets
+env.Append(CPPDEFINES=["MACRO_NAME"])
+
 import os
 from datetime import datetime
 
