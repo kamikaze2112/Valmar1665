@@ -162,7 +162,8 @@ void sendCommsUpdate() {
   outgoingData.workSwitch = readWorkSwitch();
   outgoingData.motorActive = motorActive;
   outgoingData.shaftRPM = Encoder::rpm;
-  outgoingData.actualRate = actualRate;
+  float trimFactor = 1.0f + incomingData.rateAdjust / 100.0f;
+  outgoingData.actualRate = (trimFactor != 0.0f) ? actualRate / trimFactor : actualRate;
   outgoingData.seedPerRev = seedPerRev;
   
   strncpy(outgoingData.controllerVersion, APP_VERSION, sizeof(outgoingData.controllerVersion));

@@ -13,7 +13,7 @@ private:
     DNSServer dnsServer;
     bool otaActive;
     unsigned long otaStartTime;
-    static const unsigned long OTA_TIMEOUT = 180000; // 3 minutes
+    static const unsigned long OTA_TIMEOUT = 240000; // 4 minutes
     static const char* AP_SSID;
     static const char* AP_PASSWORD;
     

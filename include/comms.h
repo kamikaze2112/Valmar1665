@@ -30,6 +30,7 @@ struct IncomingData {
   int stallDelay;
   bool reset;
   bool workSwitchOverride;
+  int rateAdjust;
 } __attribute__((packed));
 
 struct OutgoingData {

@@ -104,10 +104,11 @@ void updateOLEDgps() {
         display.print(motorLabel);
     }
 
-    if (readWorkSwitch()) {
-        display.setCursor(102, SCREEN_HEIGHT - 8);
-        display.print("WORK");
-    }
+    char trimStr[14];
+    snprintf(trimStr, sizeof(trimStr), "Trim: %d", incomingData.rateAdjust);
+    display.getTextBounds(trimStr, 0, 0, &x1, &y1, &w, &h);
+    display.setCursor(SCREEN_WIDTH - w, SCREEN_HEIGHT - 8);
+    display.print(trimStr);
 
     display.display();
 }

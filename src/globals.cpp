@@ -5,7 +5,7 @@
 #include "encoder.h"
 
 //APP VERSION
-const char* APP_VERSION = "20260430210641";
+const char* APP_VERSION = "20260501170018";
 
 // encoder pinout
 // pin 1 power RED -> yellow

@@ -137,6 +137,7 @@ if (readWorkSwitch() && !pairingMode && !otaStarted && !motorTestSwitch) {
     neopixelWrite(RGB_LED, 0, 100, 0);
 
     float targetRPM = calculateTargetShaftRPM(GPS.speedMPH, targetSeedingRate, seedPerRev, workingWidth);
+    targetRPM *= (1.0f + incomingData.rateAdjust / 100.0f);
     float actualRPM = Encoder::rpm;
 
     uint8_t pwmValue = computePWM(targetRPM, actualRPM);
@@ -149,6 +150,7 @@ if (readWorkSwitch() && !pairingMode && !otaStarted && !motorTestSwitch) {
     actualRate = 0.0f;
     if (seedPerRev > 0.0f) {
         float shadowTargetRPM = calculateTargetShaftRPM(GPS.speedMPH, targetSeedingRate, seedPerRev, workingWidth);
+        shadowTargetRPM *= (1.0f + incomingData.rateAdjust / 100.0f);
         computePWM(shadowTargetRPM, shadowTargetRPM, true);
     }
 } else if (!readWorkSwitch() && pairingMode && !otaStarted) {
