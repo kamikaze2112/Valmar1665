@@ -29,6 +29,7 @@ struct IncomingData {
   bool stallProtection;
   int stallDelay;
   bool reset;
+  bool workSwitchOverride;
 } __attribute__((packed));
 
 struct OutgoingData {
@@ -57,6 +58,7 @@ struct OutgoingData {
 // Public access to received data
 extern IncomingData incomingData;
 extern OutgoingData outgoingData;
+extern volatile bool pendingSavePrefs;
 
 // Call during setup
 void setupComms();

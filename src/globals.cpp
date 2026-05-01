@@ -5,7 +5,7 @@
 #include "encoder.h"
 
 //APP VERSION
-const char* APP_VERSION = "20250804195530";
+const char* APP_VERSION = "20260430210641";
 
 // encoder pinout
 // pin 1 power RED -> yellow
@@ -17,7 +17,7 @@ const char* APP_VERSION = "20250804195530";
 
 bool calibrationMode = false;
 float calibrationWeight = 0.00f;
-float seedPerRev = 0.00f;
+float seedPerRev = 0.0f;
 float targetRPM = 0.0f;
 bool motorTestSwitch = false;
 int motorTestPWM = 10;
@@ -73,7 +73,7 @@ void initPins() {
 
 }
 
-int workSwitchState = 0;
+volatile int workSwitchState = 0;
 
 
 

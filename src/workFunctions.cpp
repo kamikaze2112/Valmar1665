@@ -38,7 +38,12 @@ int readWorkSwitch() {
     }
   }
 
-  workSwitchState = (lastStableState == LOW) ? 1 : 0;
+  if (!incomingData.workSwitchOverride){
+    workSwitchState = (lastStableState == LOW) ? 1 : 0;
+  } else {
+    workSwitchState = true;
+  } 
+  
   return workSwitchState;
 }
 
@@ -68,40 +73,30 @@ float calculateTargetShaftRPM(float speedMph, float targetRateLbPerAcre, float s
     return shaftRPM;
 }
 
-uint8_t computePWM(float targetRPM, float actualRPM)
+uint8_t computePWM(float targetRPM, float actualRPM, bool silent)
 {
     float error = targetRPM - actualRPM;
 
-    // Integrate error
     pidIntegral += error;
 
-    // Optional: clamp integral to avoid wind-up
     if (pidIntegral > 1000.0f) pidIntegral = 1000.0f;
     if (pidIntegral < -1000.0f) pidIntegral = -1000.0f;
 
-    // Derivative
     float derivative = error - pidPrevError;
 
-    // PID output
     pidOutput = (Kp * error) + (Ki * pidIntegral) + (Kd * derivative);
     pidPrevError = error;
 
-    // Clamp and apply deadband, raise errors as necessary.
     if (pidOutput < 0.0f) pidOutput = 0.0f;
-    if (pidOutput > maxPWM && errorCode != 3) {
+    if (pidOutput > maxPWM) {
         pidOutput = maxPWM;
-        if (!errorRaised) {
-            raiseError(2); // Max pwm error
-        }
+        if (!silent && !errorRaised && errorCode != 3) raiseError(2);
     }
-    if (pidOutput > 0.0f && pidOutput < minPWM && errorCode != 3) {
+    if (pidOutput > 0.0f && pidOutput < minPWM) {
         pidOutput = minPWM;
-        if (!errorRaised) {
-            raiseError(1); // Min pwm error
-        }
+        if (!silent && !errorRaised && errorCode != 3) raiseError(1);
     }
-    
-    if (pidOutput > minPWM && pidOutput < maxPWM && errorCode != 3) {
+    if (!silent && pidOutput > minPWM && pidOutput < maxPWM && errorCode != 3) {
         clearError();
     }
 

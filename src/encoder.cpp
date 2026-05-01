@@ -25,7 +25,7 @@ int rpmHistoryIndex = 0;
 bool rpmHistoryFull = false;
 
 // Debug variables
-bool debugMode = true;
+bool debugMode = false;
 
 void setupPCNT(int pinA) {
     pcnt_config_t config;

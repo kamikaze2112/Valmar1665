@@ -1,0 +1,42 @@
+connector pinouts
+
+looking at the back of the panel connector the for the pin arrangements
+
+power
+
+1  4
+2  3
+
+gnd             4
+pwr led         3
+3.3v            1
+3.3v sw         2
+
+Cal
+
+1  2
+3  4
+
+gnd             1
+gnd             2
+cal led         3
+cal btn         4
+
+
+encoder (this connector mounted upside down)
+
+3  2
+4  1
+
+12v             1
+enc a           2
+enc b           3
+gnd             4
+
+work
+
+1  4
+2  3
+
+gnd             1
+work            4

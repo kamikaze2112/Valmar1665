@@ -27,8 +27,9 @@ github:  https://github.com/kamikaze2112/Valmar1665
 NonBlockingTimer timer;
 
 static bool otaStarted = false;
-uint16_t stallThresholdMs = 200;
-bool stallProtection = true;
+volatile uint16_t stallThresholdMs = 200;
+volatile bool stallProtection = true;
+volatile bool stallEventPending = false;
 
 void gpsTask(void* param);
 void stallMonitorTask(void* parameter);
@@ -132,7 +133,7 @@ void loop() {
 
   // start handling work conditions
 
-if (readWorkSwitch() && !pairingMode && !otaStarted) {
+if (readWorkSwitch() && !pairingMode && !otaStarted && !motorTestSwitch) {
     neopixelWrite(RGB_LED, 0, 100, 0);
 
     float targetRPM = calculateTargetShaftRPM(GPS.speedMPH, targetSeedingRate, seedPerRev, workingWidth);
@@ -143,9 +144,13 @@ if (readWorkSwitch() && !pairingMode && !otaStarted) {
     setMotorPWM(pwmValue);
     actualRate = calculateApplicationRate();
 
-} else if (!readWorkSwitch() && !pairingMode && !otaStarted) {
+} else if (!readWorkSwitch() && !pairingMode && !otaStarted && !motorTestSwitch) {
     neopixelWrite(RGB_LED, 100, 0, 0);
     actualRate = 0.0f;
+    if (seedPerRev > 0.0f) {
+        float shadowTargetRPM = calculateTargetShaftRPM(GPS.speedMPH, targetSeedingRate, seedPerRev, workingWidth);
+        computePWM(shadowTargetRPM, shadowTargetRPM, true);
+    }
 } else if (!readWorkSwitch() && pairingMode && !otaStarted) {
     neopixelWrite(RGB_LED, 0, 0, 100);
 }
@@ -173,13 +178,23 @@ if (screenPaired && !otaStarted) {
     sendCommsUpdate();
 }
 
-int newStallDelay = incomingData.stallDelay;
+stallThresholdMs = (uint16_t)incomingData.stallDelay;
+stallProtection = incomingData.stallProtection;
 
-if (stallThresholdMs != newStallDelay) {
-  stallThresholdMs = newStallDelay;
+if (pendingSavePrefs) {
+    pendingSavePrefs = false;
+    savePrefs();
 }
 
-stallProtection = incomingData.stallProtection;
+if (stallEventPending) {
+    stallEventPending = false;
+    raiseError(3);
+    for (int i = 0; i < 3; i++) {
+        outgoingData.type = PACKET_TYPE_DATA;
+        esp_now_send(screenAddress, (uint8_t *)&outgoingData, sizeof(outgoingData));
+        delay(15);
+    }
+}
 
 }
 
@@ -191,37 +206,33 @@ void gpsTask(void* param) {
 }
 
 // Motor Stall detection and error flagging
-// Optional: adjust sampling period
 const TickType_t checkInterval = pdMS_TO_TICKS(10);  // Check every 10ms
-//uint16_t stallThresholdMs = 200;
-const uint32_t stallThresholdTicks = stallThresholdMs / 10;  // Based on check interval
 const float stallRPMThreshold = 0.1f;
 
 void stallMonitorTask(void* parameter) {
     uint32_t stallCounter = 0;
+    float prevRpm = 0.0f;
 
     while (true) {
-        bool workActive = readWorkSwitch();
-        float rpm = Encoder::rpm;
-
         if (stallProtection) {
-          if (workActive && rpm < stallRPMThreshold && errorCode != 3) {
-              stallCounter++;
-              
-              if (stallCounter >= stallThresholdTicks) {
-                  setMotorPWM(0);
-                  raiseError(3);
+            bool workActive = (workSwitchState == 1);
+            float rpm = Encoder::rpm;
+            float rpmDelta = rpm - prevRpm;
+            prevRpm = rpm;
 
-                  // Burst ESP-NOW error message 3 times
-                  for (int i = 0; i < 3; i++) {
-                      outgoingData.type = PACKET_TYPE_DATA;
-                      esp_now_send(screenAddress, (uint8_t *)&outgoingData, sizeof(outgoingData));                
-                      vTaskDelay(pdMS_TO_TICKS(15));      // Short delay between sends
-                  } 
-              }
-          } else {
-              stallCounter = 0;  // Reset if conditions don't persist
-          }
+            uint32_t stallThresholdTicks = stallThresholdMs / 10;
+
+            // rpmDelta > 0 means motor is accelerating — spinning up, not stalled
+            if (workActive && rpm < stallRPMThreshold && rpmDelta <= 0.0f && errorCode != 3) {
+                stallCounter++;
+
+                if (stallCounter >= stallThresholdTicks) {
+                    setMotorPWM(0);
+                    stallEventPending = true;
+                }
+            } else {
+                stallCounter = 0;
+            }
         }
 
         vTaskDelay(checkInterval);

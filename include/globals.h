@@ -54,13 +54,12 @@ extern bool motorActive;
 extern double shaftRPM;
 extern int errorCode;
 extern bool screenPaired;
-extern int workSwitchState;
+extern volatile int workSwitchState;
 extern float seedPerRev;
 extern int numberOfRuns;
 extern bool errorRaised;
 extern bool fwUpdateStatus;
-extern int newStallDelay;
-extern bool stallProtection;
+extern volatile bool stallProtection;
 
 extern uint8_t screenAddress[6];
 extern uint8_t broadcastAddress[6];

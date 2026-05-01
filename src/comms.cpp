@@ -25,6 +25,8 @@ static esp_now_peer_info_t peerInfo;
 IncomingData incomingData = {};
 OutgoingData outgoingData = {};
 
+volatile bool pendingSavePrefs = false;
+
 // Track last send time
 unsigned long lastSendTime = 0;
 const unsigned long sendInterval = 200;  // 1 per second
@@ -98,7 +100,7 @@ void onDataRecv(const uint8_t *mac, const uint8_t *incoming, int len) {
 
     if (incomingData.manualSeedUpdate) {
       seedPerRev = incomingData.newSeedPerRev;
-      savePrefs();
+      pendingSavePrefs = true;
       incomingData.manualSeedUpdate = false;
     }
 
@@ -107,7 +109,7 @@ void onDataRecv(const uint8_t *mac, const uint8_t *incoming, int len) {
 
         DBG_PRINT("seedPerRev");
         DBG_PRINTLN(seedPerRev);
-        savePrefs();
+        pendingSavePrefs = true;
         resetRevs = true;
         incomingData.calcSeedPerRev = false;
 
